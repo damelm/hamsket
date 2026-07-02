@@ -4,9 +4,8 @@ This project is a derivative work, distributed under the terms of the **GNU Gene
 
 ## Lineage
 
-- Originally **[Rambox](https://github.com/saenzramiro/rambox)** by Ramiro Saenz.
-- Forked and maintained as **[Hamsket](https://github.com/TheGoddessInari/hamsket)** by TheGoddessInari.
-- Modified starting **2026-07-02** by **[damelm](https://github.com/damelm)**.
+- Based on other open-source repositories, including **[Hamsket](https://github.com/TheGoddessInari/hamsket)** by TheGoddessInari — the repository this project was originally downloaded from.
+- Modified starting **2026-07-02** by **[Damian Peña](https://github.com/damelm)**.
 
 ## What changed in this fork
 

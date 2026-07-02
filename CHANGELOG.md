@@ -2,7 +2,7 @@
 
 ## [1.0.0] - 2026-07-02
 
-Full rewrite of Hamsket by [damelm](https://github.com/damelm), forked from [TheGoddessInari/hamsket](https://github.com/TheGoddessInari/hamsket) (last upstream release: v0.6.5, 2022-08-06). See [NOTICE.md](./NOTICE.md) for the full lineage and license terms.
+Full rewrite of Hamsket by [Damian Peña](https://github.com/damelm), downloaded from [TheGoddessInari/hamsket](https://github.com/TheGoddessInari/hamsket) (last upstream release: v0.6.5, 2022-08-06). See [NOTICE.md](./NOTICE.md) for the full lineage and license terms.
 
 ### Added
 

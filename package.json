@@ -6,7 +6,7 @@
 	"main": "./out/main/index.js",
 	"type": "module",
 	"private": true,
-	"author": "damelm (https://github.com/damelm)",
+	"author": "Damian Peña (https://github.com/damelm)",
 	"license": "GPL-3.0",
 	"repository": {
 		"type": "git",
