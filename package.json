@@ -8,6 +8,14 @@
 	"private": true,
 	"author": "damelm (https://github.com/damelm)",
 	"license": "GPL-3.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/damelm/hamsket.git"
+	},
+	"homepage": "https://github.com/damelm/hamsket",
+	"bugs": {
+		"url": "https://github.com/damelm/hamsket/issues"
+	},
 	"engines": {
 		"node": ">=20.0.0"
 	},

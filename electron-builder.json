@@ -1,8 +1,12 @@
 {
 	"productName": "Hamsket",
-	"appId": "com.thegoddessinari.hamsket",
+	"appId": "com.damelm.hamsket",
 	"asar": true,
-	"publish": null,
+	"publish": {
+		"provider": "github",
+		"owner": "damelm",
+		"repo": "hamsket"
+	},
 	"files": ["out/**/*", "package.json"],
 	"extraResources": [{ "from": "resources", "to": "resources" }],
 	"mac": {
