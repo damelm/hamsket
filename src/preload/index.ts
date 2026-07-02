@@ -2,6 +2,8 @@ import { contextBridge, ipcRenderer } from 'electron'
 import type { AppConfig, ServiceInstance, WindowIpcApi } from '../shared/types'
 
 const api: WindowIpcApi = {
+	getVersion: () => ipcRenderer.invoke('app:version'),
+
 	getConfig: () => ipcRenderer.invoke('config:get'),
 	setConfig: (patch: Partial<AppConfig>) => ipcRenderer.invoke('config:set', patch),
 
@@ -25,7 +27,8 @@ const api: WindowIpcApi = {
 	},
 	reloadApp: () => ipcRenderer.invoke('app:reload'),
 	relaunchApp: () => ipcRenderer.invoke('app:relaunch'),
-	openExternal: (url: string) => ipcRenderer.invoke('app:openExternal', url)
+	openExternal: (url: string) => ipcRenderer.invoke('app:openExternal', url),
+	checkForUpdates: () => ipcRenderer.invoke('updater:check')
 }
 
 const MENU_CHANNELS = [

@@ -6,6 +6,7 @@ import { ServiceView } from './components/ServiceView'
 import { AddServiceDialog } from './components/AddServiceDialog'
 import { PreferencesDialog } from './components/PreferencesDialog'
 import { MasterPasswordScreen } from './components/MasterPasswordScreen'
+import { AboutDialog } from './components/AboutDialog'
 import type { ServiceInstance } from '@shared/types'
 
 export function App() {
@@ -16,6 +17,7 @@ export function App() {
 	const [addOpen, setAddOpen] = useState(false)
 	const [editingService, setEditingService] = useState<ServiceInstance | null>(null)
 	const [preferencesOpen, setPreferencesOpen] = useState(false)
+	const [aboutOpen, setAboutOpen] = useState(false)
 	const [locked, setLocked] = useState<boolean | null>(null)
 
 	useEffect(() => {
@@ -38,6 +40,11 @@ export function App() {
 				if (config) setConfig({ dontDisturb: !config.dontDisturb })
 			}),
 			window.hamsketEvents.onMenuAction('menu:reload-service', () => window.hamsketApi.reloadApp()),
+			window.hamsketEvents.onMenuAction('menu:show-about', () => setAboutOpen(true)),
+			window.hamsketEvents.onMenuAction('menu:report-issue', () =>
+				window.hamsketApi.openExternal('https://github.com/damelm/hamsket/issues/new')
+			),
+			window.hamsketEvents.onMenuAction('menu:check-for-updates', () => window.hamsketApi.checkForUpdates()),
 			window.hamsketEvents.onMenuAction('menu:tab-next', () => {
 				const list = sorted()
 				if (list.length === 0) return
@@ -112,6 +119,8 @@ export function App() {
 			{preferencesOpen && (
 				<PreferencesDialog config={config} onChange={setConfig} onClose={() => setPreferencesOpen(false)} />
 			)}
+
+			{aboutOpen && <AboutDialog onClose={() => setAboutOpen(false)} />}
 		</div>
 	)
 }

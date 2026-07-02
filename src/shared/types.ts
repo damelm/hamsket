@@ -41,6 +41,8 @@ export interface AppConfig {
 }
 
 export interface WindowIpcApi {
+	getVersion: () => Promise<string>
+
 	getConfig: () => Promise<AppConfig>
 	setConfig: (patch: Partial<AppConfig>) => Promise<AppConfig>
 
@@ -59,4 +61,5 @@ export interface WindowIpcApi {
 	reloadApp: () => Promise<void>
 	relaunchApp: () => Promise<void>
 	openExternal: (url: string) => Promise<void>
+	checkForUpdates: () => Promise<void>
 }

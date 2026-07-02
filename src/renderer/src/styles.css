@@ -260,3 +260,17 @@ button {
 	font-size: 13px;
 	margin: 0;
 }
+
+.about {
+	text-align: center;
+	align-items: center;
+}
+
+.about__version {
+	color: #9aa0a6;
+	margin-top: -8px;
+}
+
+.about a {
+	color: #7aa2f7;
+}

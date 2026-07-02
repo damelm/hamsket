@@ -10,6 +10,8 @@ interface RegisterOptions {
 }
 
 export function registerIpcHandlers({ getMainWindow, onConfigChanged }: RegisterOptions): void {
+	ipcMain.handle('app:version', () => app.getVersion())
+
 	ipcMain.handle('config:get', () => getConfig())
 
 	ipcMain.handle('config:set', (_event, patch) => {
