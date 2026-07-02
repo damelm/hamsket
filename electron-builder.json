@@ -3,6 +3,8 @@
 	"appId": "com.thegoddessinari.hamsket",
 	"asar": true,
 	"publish": null,
+	"files": ["out/**/*", "package.json"],
+	"extraResources": [{ "from": "resources", "to": "resources" }],
 	"mac": {
 		"category": "public.app-category.productivity",
 		"target": ["default"]
@@ -29,16 +31,10 @@
 	},
 	"linux": {
 		"category": "Network",
-		"desktop": {
-			"Terminal": "false",
-			"Type": "Application",
-			"Categories": "Network;Email;Chat;InstantMessaging;"
-		},
 		"target": ["tar.gz", "deb", "rpm", "AppImage"]
 	},
 	"directories": {
 		"buildResources": "resources/installer/",
-		"output": "dist/",
-		"app": "build/production/Hamsket/"
+		"output": "dist/"
 	}
 }

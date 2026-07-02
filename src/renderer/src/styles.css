@@ -1,0 +1,262 @@
+html,
+body,
+#app {
+	height: 100%;
+	margin: 0;
+}
+
+body {
+	font-family:
+		system-ui,
+		-apple-system,
+		'Segoe UI',
+		sans-serif;
+	background: #1a1d21;
+	color: #e8e8e8;
+}
+
+.app-shell {
+	display: flex;
+	height: 100%;
+}
+
+.tab-bar {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	width: 76px;
+	background: #20232a;
+	border-right: 1px solid #2f333b;
+	padding: 8px 0;
+}
+
+.tab-bar__list {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	overflow-y: auto;
+}
+
+.tab-bar__item {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	background: transparent;
+	border: none;
+	color: inherit;
+	padding: 8px 4px;
+	cursor: pointer;
+	border-radius: 8px;
+	margin: 0 6px;
+}
+
+.tab-bar__item:hover {
+	background: #2a2e37;
+}
+
+.tab-bar__item--active {
+	background: #323744;
+}
+
+.tab-bar__icon {
+	width: 28px;
+	height: 28px;
+	border-radius: 6px;
+}
+
+.tab-bar__label {
+	font-size: 10px;
+	max-width: 64px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.tab-bar__badge {
+	position: absolute;
+	top: 2px;
+	right: 8px;
+	background: #e0245e;
+	color: white;
+	font-size: 10px;
+	border-radius: 999px;
+	padding: 1px 5px;
+	line-height: 1.4;
+}
+
+.tab-bar__actions {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+}
+
+.tab-bar__action {
+	width: 32px;
+	height: 32px;
+	border-radius: 8px;
+	border: none;
+	background: #2a2e37;
+	color: inherit;
+	cursor: pointer;
+	font-size: 16px;
+}
+
+.tab-bar__action:hover {
+	background: #323744;
+}
+
+.service-stack {
+	flex: 1;
+	position: relative;
+}
+
+.service-view {
+	position: absolute;
+	inset: 0;
+}
+
+.empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	gap: 12px;
+	color: #9aa0a6;
+}
+
+.modal-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.modal {
+	background: #20232a;
+	border-radius: 10px;
+	padding: 20px;
+	min-width: 320px;
+	max-width: 420px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.modal__list {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.modal__list-item {
+	text-align: left;
+	background: #2a2e37;
+	border: none;
+	color: inherit;
+	padding: 10px 12px;
+	border-radius: 6px;
+	cursor: pointer;
+}
+
+.modal__list-item:hover {
+	background: #323744;
+}
+
+.modal__note {
+	font-size: 12px;
+	color: #9aa0a6;
+}
+
+.modal__actions {
+	display: flex;
+	gap: 8px;
+}
+
+.modal input {
+	padding: 8px 10px;
+	border-radius: 6px;
+	border: 1px solid #3a3f4b;
+	background: #14161a;
+	color: inherit;
+}
+
+.modal--wide {
+	min-width: 380px;
+	max-width: 480px;
+	max-height: 80vh;
+	overflow-y: auto;
+}
+
+.modal__field {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-size: 13px;
+}
+
+.modal__checkbox {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 13px;
+}
+
+.modal__fieldset {
+	border: 1px solid #3a3f4b;
+	border-radius: 8px;
+	padding: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.modal__fieldset legend {
+	padding: 0 6px;
+	font-size: 12px;
+	color: #9aa0a6;
+}
+
+.modal__danger {
+	background: #47222b;
+	color: #ff8a94;
+}
+
+button {
+	font: inherit;
+}
+
+.lock-screen {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+}
+
+.lock-screen__form {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	width: 260px;
+	text-align: center;
+}
+
+.lock-screen__form input {
+	padding: 10px 12px;
+	border-radius: 6px;
+	border: 1px solid #3a3f4b;
+	background: #14161a;
+	color: inherit;
+	text-align: center;
+}
+
+.lock-screen__error {
+	color: #ff8a94;
+	font-size: 13px;
+	margin: 0;
+}
