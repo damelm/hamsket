@@ -53,6 +53,40 @@ if (NativeNotification) {
 // voice-message playback, while Chromium now throttles background pages on
 // its own anyway.
 
+// WhatsApp Web (and other chat apps) play voice notes through the Web Audio
+// API. Chromium can leave a freshly-created AudioContext "suspended" under its
+// autoplay policy; if the app never resumes it, playback advances visually (the
+// timer moves) but no samples reach any output device — the exact "plays but
+// silent, not on any device" symptom. Auto-resume each context on creation and
+// on the first user interaction as a safety net that doesn't depend on the app
+// resuming it itself.
+type AudioCtor = typeof AudioContext
+const NativeAudioContext: AudioCtor | undefined =
+	window.AudioContext || (window as unknown as { webkitAudioContext?: AudioCtor }).webkitAudioContext
+
+if (NativeAudioContext) {
+	const liveContexts = new Set<AudioContext>()
+	const resumeSuspended = (): void => {
+		for (const ctx of liveContexts) {
+			if (ctx.state === 'suspended') void ctx.resume().catch(() => {})
+		}
+	}
+
+	const PatchedAudioContext = function (...args: unknown[]) {
+		const ctx = new (NativeAudioContext as new (...a: unknown[]) => AudioContext)(...args)
+		liveContexts.add(ctx)
+		if (ctx.state === 'suspended') void ctx.resume().catch(() => {})
+		return ctx
+	} as unknown as AudioCtor
+	PatchedAudioContext.prototype = NativeAudioContext.prototype
+	window.AudioContext = PatchedAudioContext
+	;(window as unknown as { webkitAudioContext: AudioCtor }).webkitAudioContext = PatchedAudioContext
+
+	for (const evt of ['pointerdown', 'keydown', 'touchstart'] as const) {
+		window.addEventListener(evt, resumeSuspended, { capture: true })
+	}
+}
+
 // Fallback unread detection for services whose catalog script goes stale: most
 // chat apps put an unread count in the tab title, e.g. "(3) Slack | Acme".
 let lastTitleCount = 0

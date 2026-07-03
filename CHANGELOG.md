@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.4] - 2026-07-03
+
+### Fixed
+
+- Third and root-cause pass at WhatsApp voice notes playing silently ("no sale por ningún dispositivo"). WhatsApp Web plays voice notes through the Web Audio API, and Chromium's autoplay policy leaves the `AudioContext` in a `suspended` state — the player advances visually but no samples ever reach an output device, which is why the OS mixer showed no stream for the app. Two fixes together:
+  - Global `--autoplay-policy=no-user-gesture-required` command-line switch (the per-`<webview>` `autoplayPolicy` option added in 1.0.3 is unreliable and wasn't enough on its own).
+  - The service preload now patches `AudioContext`/`webkitAudioContext` to auto-resume every context on creation and on the first user interaction, so playback isn't dependent on the web app resuming it itself.
+
 ## [1.0.3] - 2026-07-03
 
 ### Fixed

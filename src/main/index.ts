@@ -17,6 +17,13 @@ import { hardenWebviews, registerNotificationPermissions, resourcesDir } from '.
 // https://github.com/electron/electron/issues/25469
 app.commandLine.appendSwitch('disable-features', 'CrossOriginOpenerPolicy')
 
+// WhatsApp Web plays voice notes through the Web Audio API, which Chromium can
+// leave suspended under its default autoplay policy — the player then advances
+// visually but emits no sound on any device. The per-webContents autoplayPolicy
+// option is unreliable for <webview>; this global switch is the authoritative
+// form. Paired with the AudioContext auto-resume patch in the service preload.
+app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required')
+
 // A separately-installed "Hamsket" build (the original app this project is
 // based on) may already be running on this machine. The default userData path
 // (and with it, the single-instance lock) is derived from productName before
