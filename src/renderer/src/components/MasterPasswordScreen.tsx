@@ -22,7 +22,7 @@ export function MasterPasswordScreen({ onUnlock }: Props) {
 	return (
 		<div class="lock-screen">
 			<form class="lock-screen__form" onSubmit={submit}>
-				<h1>Hamsket bloqueado</h1>
+				<h1>OpsDesk bloqueado</h1>
 				<input
 					type="password"
 					autoFocus

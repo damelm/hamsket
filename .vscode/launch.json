@@ -2,7 +2,7 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Hamsket: dev (electron-vite)",
+			"name": "OpsDesk: dev (electron-vite)",
 			"type": "node",
 			"request": "launch",
 			"runtimeExecutable": "npm",

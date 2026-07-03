@@ -21,7 +21,7 @@ export function AboutDialog({ onClose }: Props) {
 	return (
 		<div class="modal-backdrop" onClick={onClose}>
 			<div class="modal about" onClick={(e) => e.stopPropagation()}>
-				<h2>Hamsket</h2>
+				<h2>OpsDesk</h2>
 				<p class="about__version">Versión {version}</p>
 
 				<p>

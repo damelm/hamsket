@@ -1,11 +1,11 @@
-# Hamsket
+# OpsDesk
 
 Free, open source, cross-platform desktop app that combines a handful of messaging services into one window with tabs.
 
 [![CI](https://github.com/damelm/hamsket/actions/workflows/ci.yml/badge.svg)](https://github.com/damelm/hamsket/actions/workflows/ci.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
 
-Maintained by [Damian Peña](https://github.com/damelm). This is a from-scratch rewrite based on other open-source repositories, including [Hamsket](https://github.com/TheGoddessInari/hamsket) — modernized stack, reduced service catalog, new icon. See [NOTICE.md](./NOTICE.md) for full lineage and [CHANGELOG.md](./CHANGELOG.md) for what changed.
+Maintained by [Damian Peña](https://github.com/damelm). This is a from-scratch rewrite based on other open-source repositories, including [Hamsket](https://github.com/TheGoddessInari/hamsket) — modernized stack, reduced service catalog, new name and icon. See [NOTICE.md](./NOTICE.md) for full lineage and [CHANGELOG.md](./CHANGELOG.md) for what changed. The repository is still named `hamsket` for continuity; the application itself is OpsDesk.
 
 ## Services
 

@@ -1,6 +1,6 @@
 {
 	"name": "hamsket",
-	"productName": "Hamsket",
+	"productName": "OpsDesk",
 	"version": "1.0.0",
 	"description": "Internal multi-service messaging hub (WhatsApp, Telegram, Slack, Nextcloud Talk, Element + custom URLs) in one window.",
 	"main": "./out/main/index.js",

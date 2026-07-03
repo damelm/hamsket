@@ -17,21 +17,22 @@ import { hardenWebviews, registerNotificationPermissions, resourcesDir } from '.
 // https://github.com/electron/electron/issues/25469
 app.commandLine.appendSwitch('disable-features', 'CrossOriginOpenerPolicy')
 
-// A separately-installed "Hamsket" build may already be running on this machine.
-// The default userData path (and with it, the single-instance lock) is derived
-// from productName before any of this file runs, so app.setName() alone can't
-// move it — an explicit setPath is required to avoid colliding with that install.
-// E2E runs go one step further with their own per-run directory (HAMSKET_USER_DATA_DIR)
-// so a leftover `npm run dev` instance can't fail the test suite's lock either.
+// A separately-installed "Hamsket" build (the original app this project is
+// based on) may already be running on this machine. The default userData path
+// (and with it, the single-instance lock) is derived from productName before
+// any of this file runs, so app.setName() alone can't move it — an explicit
+// setPath is required to avoid colliding with that install. E2E runs go one
+// step further with their own per-run directory (HAMSKET_USER_DATA_DIR) so a
+// leftover `npm run dev` instance can't fail the test suite's lock either.
 if (process.env['HAMSKET_USER_DATA_DIR']) {
-	app.setName('Hamsket Test')
+	app.setName('OpsDesk Test')
 	app.setPath('userData', process.env['HAMSKET_USER_DATA_DIR'])
 } else if (is.dev) {
-	app.setName('Hamsket Dev')
-	app.setPath('userData', join(app.getPath('appData'), 'Hamsket Dev'))
+	app.setName('OpsDesk Dev')
+	app.setPath('userData', join(app.getPath('appData'), 'OpsDesk Dev'))
 }
 
-const autoLauncher = new AutoLaunch({ name: 'Hamsket' })
+const autoLauncher = new AutoLaunch({ name: 'OpsDesk' })
 
 let mainWindow: BrowserWindow | null = null
 

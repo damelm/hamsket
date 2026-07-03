@@ -2,7 +2,7 @@
 
 ## [1.0.0] - 2026-07-02
 
-Full rewrite of Hamsket by [Damian Peña](https://github.com/damelm), downloaded from [TheGoddessInari/hamsket](https://github.com/TheGoddessInari/hamsket) (last upstream release: v0.6.5, 2022-08-06). See [NOTICE.md](./NOTICE.md) for the full lineage and license terms.
+Full rewrite by [Damian Peña](https://github.com/damelm), downloaded from [TheGoddessInari/hamsket](https://github.com/TheGoddessInari/hamsket) (last upstream release: v0.6.5, 2022-08-06) and renamed to **OpsDesk**. See [NOTICE.md](./NOTICE.md) for the full lineage and license terms.
 
 ### Added
 
@@ -15,6 +15,7 @@ Full rewrite of Hamsket by [Damian Peña](https://github.com/damelm), downloaded
 
 ### Changed
 
+- Renamed from Hamsket to **OpsDesk** (window title, menus, tray, installer, auto-launch entry). The GitHub repository is still named `hamsket` for continuity.
 - Service catalog reduced from ~95 entries to 5: WhatsApp, Telegram, Slack, Nextcloud Talk (new — no upstream precedent), Element, plus a generic custom-URL type.
 - Build no longer requires Java, Ruby, or Sencha Cmd — `npm install && npm run dev` is the entire setup.
 - `electron-updater` (GitHub Releases) replaces the original custom update server.

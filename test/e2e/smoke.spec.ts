@@ -26,9 +26,9 @@ test.afterEach(async () => {
 	rmSync(userDataDir, { recursive: true, force: true })
 })
 
-test('launches a window titled Hamsket', async () => {
+test('launches a window titled OpsDesk', async () => {
 	const window = await app.firstWindow()
-	await expect(window).toHaveTitle('Hamsket')
+	await expect(window).toHaveTitle('OpsDesk')
 })
 
 test('renders the app shell without a console error', async () => {

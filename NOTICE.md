@@ -1,6 +1,6 @@
 # Notice
 
-This project is a derivative work, distributed under the terms of the **GNU General Public License v3.0** (see [LICENSE](./LICENSE)), same as its upstream.
+This project (**OpsDesk**) is a derivative work, distributed under the terms of the **GNU General Public License v3.0** (see [LICENSE](./LICENSE)), same as its upstream.
 
 ## Lineage
 
@@ -16,7 +16,7 @@ Per GPL-3.0 §5(a), this notice records that the work has been modified, and whe
 - The service catalog was reduced from ~95 entries to 5 (WhatsApp, Telegram, Slack, Nextcloud Talk, Element) plus a generic custom-URL type.
 - Security posture was hardened: `contextIsolation: true` + `contextBridge` replaces `@electron/remote` and `nodeIntegration: true` in the main application window; the master password hash was changed from MD5 to `scrypt`.
 - Testing (Vitest + Playwright), linting (ESLint flat config + Prettier), and CI (GitHub Actions) were added; the previous Spectron-based test setup and Azure DevOps pipeline were removed.
-- The application icon was replaced with an original design (a headset/call-center mark); no upstream branding assets remain in `resources/`.
+- The application was renamed from Hamsket to OpsDesk, and the icon was replaced with an original design (a headset/call-center mark); no upstream branding assets remain in `resources/`.
 - Multi-language UI support was dropped (see [CHANGELOG.md](./CHANGELOG.md) for the reasoning).
 
 None of the above changes the license: this project remains GPL-3.0, source-available, and any further redistribution must carry the same license and this notice.

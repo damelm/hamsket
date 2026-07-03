@@ -47,7 +47,7 @@ export function buildMenu(win: BrowserWindow): Menu {
 					click: () => send(win, 'menu:reload-service')
 				},
 				{
-					label: 'Recargar Hamsket',
+					label: 'Recargar OpsDesk',
 					accelerator: 'CmdOrCtrl+R',
 					// Not role: 'reload' — that role's default accelerator can lose the
 					// keypress to a focused <webview>'s own page instead of reloading
@@ -76,7 +76,7 @@ export function buildMenu(win: BrowserWindow): Menu {
 					click: () => send(win, 'menu:toggle-dnd')
 				},
 				{
-					label: 'Bloquear Hamsket',
+					label: 'Bloquear OpsDesk',
 					accelerator: 'Alt+F2',
 					click: () => send(win, 'menu:lock')
 				},

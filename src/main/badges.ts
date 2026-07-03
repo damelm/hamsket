@@ -30,7 +30,7 @@ export function registerBadgeChannel({ getMainWindow, setTrayBadge }: RegisterOp
 		win?.webContents.send('services:badge', serviceId, direct, indirect)
 
 		const sum = total()
-		win?.setTitle(sum > 0 ? `Hamsket (${sum})` : 'Hamsket')
+		win?.setTitle(sum > 0 ? `OpsDesk (${sum})` : 'OpsDesk')
 		setTrayBadge(sum)
 	})
 

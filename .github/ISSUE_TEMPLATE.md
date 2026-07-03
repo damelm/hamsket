@@ -18,12 +18,10 @@
 
 <!-- Complete your environment -->
 
-> Hamsket: v0.X.X
+> OpsDesk: v0.X.X
 
 > OS: XXXX
 
-> Arch: x64 or ia32
+> Arch: x64
 
 > BuildVersion:
-
-> Does this happen upstream: yes, no, unknown, or N/A

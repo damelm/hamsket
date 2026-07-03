@@ -1,5 +1,5 @@
 {
-	"productName": "Hamsket",
+	"productName": "OpsDesk",
 	"appId": "com.damelm.hamsket",
 	"asar": true,
 	"publish": {
@@ -14,7 +14,7 @@
 		"target": ["default"]
 	},
 	"dmg": {
-		"title": "Hamsket",
+		"title": "OpsDesk",
 		"iconSize": 128,
 		"contents": [
 			{

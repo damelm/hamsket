@@ -14,7 +14,7 @@ function iconPath(unread: boolean): string {
 
 export function createTray(win: BrowserWindow): Tray {
 	tray = new Tray(nativeImage.createFromPath(iconPath(false)))
-	tray.setToolTip('Hamsket')
+	tray.setToolTip('OpsDesk')
 
 	tray.setContextMenu(
 		Menu.buildFromTemplate([
@@ -35,7 +35,7 @@ export function createTray(win: BrowserWindow): Tray {
 export function setTrayBadge(unreadCount: number): void {
 	if (!tray) return
 	tray.setImage(nativeImage.createFromPath(iconPath(unreadCount > 0)))
-	tray.setToolTip(unreadCount > 0 ? `Hamsket — ${unreadCount} sin leer` : 'Hamsket')
+	tray.setToolTip(unreadCount > 0 ? `OpsDesk — ${unreadCount} sin leer` : 'OpsDesk')
 }
 
 export function destroyTray(): void {
