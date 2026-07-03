@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.5] - 2026-07-03
+
+### Added
+
+- **Rename / edit services without deleting them.** Each sidebar tab now has a pencil button (appears on hover) and a right-click context menu with **Editar / renombrar…**, **Recargar**, **Silenciar audio**, and **Quitar**. Previously the only way to change a service's name was to remove it and recreate it.
+- Per-service reload (from the context menu) that reloads just that tab's page instead of the whole app.
+
+### Notes
+
+- Investigated a report of WhatsApp voice notes being silent "on the installed app but not the one launched during testing". Root cause turned out to be environmental, not a code bug: the machine still had the **original Hamsket 0.6.5** installed alongside OpsDesk (separate app, separate `%APPDATA%` profile and WhatsApp session), and it was being launched by mistake. Audio works in OpsDesk (the autoplay-policy switch from 1.0.4 is what enables it; WhatsApp voice notes play through a plain `<audio>` element, confirmed by live instrumentation). Recommendation: uninstall the old Hamsket so only OpsDesk remains.
+
 ## [1.0.4] - 2026-07-03
 
 ### Fixed

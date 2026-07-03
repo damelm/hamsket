@@ -14,6 +14,7 @@ interface Props {
 	onResizeEnd: (width: number) => void
 	onSelect: (id: string) => void
 	onEdit: (service: ServiceInstance) => void
+	onContextMenu: (service: ServiceInstance, x: number, y: number) => void
 	onAddClick: () => void
 	onPreferencesClick: () => void
 }
@@ -27,6 +28,7 @@ export function TabBar({
 	onResizeEnd,
 	onSelect,
 	onEdit,
+	onContextMenu,
 	onAddClick,
 	onPreferencesClick
 }: Props) {
@@ -62,17 +64,32 @@ export function TabBar({
 						const catalog = getServiceByCatalogId(service.catalogId)
 						const count = badges[service.id] ?? 0
 						return (
-							<button
-								key={service.id}
-								class={`tab-bar__item${service.id === activeId ? ' tab-bar__item--active' : ''}`}
-								onClick={() => onSelect(service.id)}
-								onDblClick={() => onEdit(service)}
-								title={`${service.name} (doble clic para editar)`}
-							>
-								{catalog && <img class="tab-bar__icon" src={`./${catalog.icon}`} alt="" />}
-								<span class="tab-bar__label">{service.name}</span>
-								{count > 0 && <span class="tab-bar__badge">{count > 99 ? '99+' : count}</span>}
-							</button>
+							<div key={service.id} class="tab-bar__item-wrap">
+								<button
+									class={`tab-bar__item${service.id === activeId ? ' tab-bar__item--active' : ''}`}
+									onClick={() => onSelect(service.id)}
+									onDblClick={() => onEdit(service)}
+									onContextMenu={(e) => {
+										e.preventDefault()
+										onContextMenu(service, e.clientX, e.clientY)
+									}}
+									title={service.name}
+								>
+									{catalog && <img class="tab-bar__icon" src={`./${catalog.icon}`} alt="" />}
+									<span class="tab-bar__label">{service.name}</span>
+									{count > 0 && <span class="tab-bar__badge">{count > 99 ? '99+' : count}</span>}
+								</button>
+								<button
+									class="tab-bar__edit"
+									title="Editar / renombrar"
+									onClick={(e) => {
+										e.stopPropagation()
+										onEdit(service)
+									}}
+								>
+									✎
+								</button>
+							</div>
 						)
 					})}
 			</div>

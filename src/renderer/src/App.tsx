@@ -7,6 +7,7 @@ import { AddServiceDialog } from './components/AddServiceDialog'
 import { PreferencesDialog } from './components/PreferencesDialog'
 import { MasterPasswordScreen } from './components/MasterPasswordScreen'
 import { AboutDialog } from './components/AboutDialog'
+import { ServiceContextMenu } from './components/ServiceContextMenu'
 import type { ServiceInstance } from '@shared/types'
 
 export function App() {
@@ -20,6 +21,10 @@ export function App() {
 	const [aboutOpen, setAboutOpen] = useState(false)
 	const [locked, setLocked] = useState<boolean | null>(null)
 	const [liveSidebarWidth, setLiveSidebarWidth] = useState<number | null>(null)
+	const [contextMenu, setContextMenu] = useState<{ service: ServiceInstance; x: number; y: number } | null>(null)
+	const [reloadNonces, setReloadNonces] = useState<Record<string, number>>({})
+
+	const reloadService = (id: string) => setReloadNonces((prev) => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }))
 
 	useEffect(() => {
 		window.hamsketApi.hasMasterPassword().then(setLocked)
@@ -89,6 +94,7 @@ export function App() {
 				}}
 				onSelect={setActiveId}
 				onEdit={setEditingService}
+				onContextMenu={(service, x, y) => setContextMenu({ service, x, y })}
 				onAddClick={() => setAddOpen(true)}
 				onPreferencesClick={() => setPreferencesOpen(true)}
 			/>
@@ -100,7 +106,12 @@ export function App() {
 					</div>
 				)}
 				{services.map((service) => (
-					<ServiceView key={service.id} instance={service} active={service.id === activeId} />
+					<ServiceView
+						key={service.id}
+						instance={service}
+						active={service.id === activeId}
+						reloadNonce={reloadNonces[service.id] ?? 0}
+					/>
 				))}
 			</div>
 
@@ -128,6 +139,31 @@ export function App() {
 			)}
 
 			{aboutOpen && <AboutDialog onClose={() => setAboutOpen(false)} />}
+
+			{contextMenu && (
+				<ServiceContextMenu
+					service={contextMenu.service}
+					x={contextMenu.x}
+					y={contextMenu.y}
+					onEdit={() => {
+						setEditingService(contextMenu.service)
+						setContextMenu(null)
+					}}
+					onReload={() => {
+						reloadService(contextMenu.service.id)
+						setContextMenu(null)
+					}}
+					onToggleMute={() => {
+						updateService(contextMenu.service.id, { muted: !contextMenu.service.muted })
+						setContextMenu(null)
+					}}
+					onRemove={() => {
+						removeService(contextMenu.service.id)
+						setContextMenu(null)
+					}}
+					onClose={() => setContextMenu(null)}
+				/>
+			)}
 		</div>
 	)
 }

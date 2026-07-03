@@ -6,6 +6,7 @@ import { getServiceByCatalogId } from '@shared/services-catalog'
 interface Props {
 	instance: ServiceInstance
 	active: boolean
+	reloadNonce: number
 }
 
 // Electron's default UA includes "OpsDesk/x" and "Electron/x" tokens. Several
@@ -21,11 +22,12 @@ const DESKTOP_CHROME_UA = navigator.userAgent.replace(/\s(OpsDesk|Electron)\/\S+
 // element's own methods (setAudioMuted, setZoomLevel, executeJavaScript) are
 // how Electron expects you to drive it — there isn't a meaningful declarative
 // prop mapping for most of it.
-export function ServiceView({ instance, active }: Props) {
+export function ServiceView({ instance, active, reloadNonce }: Props) {
 	const containerRef = useRef<HTMLDivElement>(null)
 	const lastScriptCount = useRef(0)
 	const lastTitleCount = useRef(0)
 	const readyRef = useRef(false)
+	const firstNonce = useRef(reloadNonce)
 
 	useEffect(() => {
 		const container = containerRef.current
@@ -90,6 +92,17 @@ export function ServiceView({ instance, active }: Props) {
 		const webview = containerRef.current?.querySelector('webview') as unknown as WebviewTag | null
 		webview?.setZoomLevel(instance.zoomLevel)
 	}, [instance.zoomLevel])
+
+	useEffect(() => {
+		// Skip the initial mount; only reload when the nonce actually changes.
+		if (reloadNonce === firstNonce.current) return
+		const webview = containerRef.current?.querySelector('webview') as unknown as WebviewTag | null
+		try {
+			webview?.reload()
+		} catch {
+			/* webview not ready yet */
+		}
+	}, [reloadNonce])
 
 	return <div ref={containerRef} class="service-view" style={{ display: active ? 'block' : 'none' }} />
 }
