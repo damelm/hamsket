@@ -2,6 +2,7 @@ import { session, type BrowserWindow, type Session } from 'electron'
 import { join } from 'node:path'
 import { is } from '@electron-toolkit/utils'
 import { listServices } from './config'
+import { openLinkWindow } from './link-window'
 import type { ServiceCatalogId } from '../shared/types'
 
 // Popups from a small, fixed set of well-known OAuth/SSO providers are allowed
@@ -44,9 +45,9 @@ export function hardenWebviews(win: BrowserWindow): void {
 
 	win.webContents.on('did-attach-webview', (_event, contents) => {
 		contents.setWindowOpenHandler(({ url }) => {
-			let host: string
+			let parsed: URL
 			try {
-				host = new URL(url).hostname
+				parsed = new URL(url)
 			} catch {
 				return { action: 'deny' }
 			}
@@ -54,7 +55,9 @@ export function hardenWebviews(win: BrowserWindow): void {
 			const service = findServiceForSession(contents.session)
 			const allowAll = service && ALWAYS_ALLOW_POPUPS.includes(service.catalogId)
 
-			if (allowAll || OAUTH_POPUP_HOSTS.includes(host)) {
+			// OAuth popups must stay real popups (window.opener callbacks), so they
+			// get an allowed child window instead of the sandboxed viewer.
+			if (allowAll || OAUTH_POPUP_HOSTS.includes(parsed.hostname)) {
 				return {
 					action: 'allow',
 					overrideBrowserWindowOptions: {
@@ -63,6 +66,11 @@ export function hardenWebviews(win: BrowserWindow): void {
 				}
 			}
 
+			// Every other link a service opens (chat messages, "read more" links…)
+			// lands in the isolated in-app viewer.
+			if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+				openLinkWindow(url)
+			}
 			return { action: 'deny' }
 		})
 

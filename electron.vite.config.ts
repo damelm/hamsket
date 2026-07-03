@@ -19,7 +19,8 @@ export default defineConfig({
 			rollupOptions: {
 				input: {
 					index: resolve(__dirname, 'src/preload/index.ts'),
-					service: resolve(__dirname, 'src/preload/service.ts')
+					service: resolve(__dirname, 'src/preload/service.ts'),
+					linkbar: resolve(__dirname, 'src/preload/linkbar.ts')
 				},
 				// Sandboxed preload scripts (the default with contextIsolation) load
 				// through a restricted CommonJS-only loader — native ESM `import`

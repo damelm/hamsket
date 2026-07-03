@@ -47,12 +47,11 @@ if (NativeNotification) {
 	window.Notification = PatchedNotification
 }
 
-// Background chat tabs polling on tight setInterval/setTimeout loops burn CPU
-// for no visible benefit — keep a 100ms floor, matching the original app's
-// "lowered timer granularity" behavior.
-const nativeSetTimeout = window.setTimeout
-window.setTimeout = ((handler: TimerHandler, timeout?: number, ...args: unknown[]) =>
-	nativeSetTimeout(handler, Math.max(timeout ?? 0, 100), ...args)) as typeof window.setTimeout
+// Note: the original app clamped every setTimeout to a 100ms floor ("lowered
+// timer granularity") to save CPU. That patch was removed in 1.0.2 — modern
+// WhatsApp Web schedules audio playback with short timers and the clamp broke
+// voice-message playback, while Chromium now throttles background pages on
+// its own anyway.
 
 // Fallback unread detection for services whose catalog script goes stale: most
 // chat apps put an unread count in the tab title, e.g. "(3) Slack | Acme".

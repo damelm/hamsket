@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.2] - 2026-07-03
+
+### Added
+
+- **In-app sandboxed link viewer.** Links clicked inside a service used to be silently blocked by the popup hardening (nothing happened at all). They now open in a floating OpsDesk window running under Chromium's renderer sandbox with no Node access and a throwaway in-memory session per window — no cookies or storage shared with the services or the host UI. A toolbar shows the real URL (host highlighted, anti-phishing) with back/forward/reload, copy-link, and an "open in system browser" escape hatch for sites that refuse embedded windows. OAuth login popups (Google/Microsoft/Apple) keep opening as real popups since those flows need `window.opener`. Downloads and permission prompts inside the viewer are denied.
+
+### Fixed
+
+- WhatsApp voice messages (and other in-service audio) failing to play: the 100ms `setTimeout` floor inherited from the original app's "lowered timer granularity" CPU optimization broke modern audio playback scheduling. Removed — Chromium throttles background pages on its own these days.
+
 ## [1.0.1] - 2026-07-03
 
 Bug-fix release from testing the first real Windows installer.
@@ -10,6 +20,7 @@ Bug-fix release from testing the first real Windows installer.
 - The sidebar was a fixed 76px wide, cutting off longer service names with no way to resize it. Added a drag handle on the sidebar's right edge; the width is persisted (`sidebarWidth` in config).
 - Clicking the window's close (X) button quit the app entirely instead of minimizing to tray like the rest of the app implies. The `close` event now hides the window instead, unless the app is actually quitting (tray "Salir", the menu's Quit, or Cmd+Q on macOS).
 - The Windows installer ran in NSIS's silent "one-click" mode — no progress bar, no confirmation of where it installed, no success/failure screen, just closes. Switched to the assisted NSIS installer (`oneClick: false`) with a directory picker, visible progress, and a finish screen.
+- The File menu quit item was labeled "Exit" (Electron's English default); now "Salir".
 
 ## [1.0.0] - 2026-07-02
 
