@@ -16,7 +16,8 @@ const defaults: AppConfig = {
 	disableGpu: false,
 	proxy: null,
 	masterPasswordHash: null,
-	bounds: { width: 1200, height: 800, maximized: false }
+	bounds: { width: 1200, height: 800, maximized: false },
+	sidebarWidth: 76
 }
 
 export const store = new Store<StoreShape>({

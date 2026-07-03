@@ -19,6 +19,7 @@ export function App() {
 	const [preferencesOpen, setPreferencesOpen] = useState(false)
 	const [aboutOpen, setAboutOpen] = useState(false)
 	const [locked, setLocked] = useState<boolean | null>(null)
+	const [liveSidebarWidth, setLiveSidebarWidth] = useState<number | null>(null)
 
 	useEffect(() => {
 		window.hamsketApi.hasMasterPassword().then(setLocked)
@@ -80,6 +81,12 @@ export function App() {
 				services={services}
 				activeId={activeId}
 				badges={badges}
+				width={liveSidebarWidth ?? config.sidebarWidth}
+				onResize={setLiveSidebarWidth}
+				onResizeEnd={(w) => {
+					setConfig({ sidebarWidth: w })
+					setLiveSidebarWidth(null)
+				}}
 				onSelect={setActiveId}
 				onEdit={setEditingService}
 				onAddClick={() => setAddOpen(true)}

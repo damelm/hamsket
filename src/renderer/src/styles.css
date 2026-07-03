@@ -21,10 +21,11 @@ body {
 }
 
 .tab-bar {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	width: 76px;
+	flex-shrink: 0;
 	background: #20232a;
 	border-right: 1px solid #2f333b;
 	padding: 8px 0;
@@ -50,6 +51,7 @@ body {
 	cursor: pointer;
 	border-radius: 8px;
 	margin: 0 6px;
+	min-width: 0;
 }
 
 .tab-bar__item:hover {
@@ -68,10 +70,25 @@ body {
 
 .tab-bar__label {
 	font-size: 10px;
-	max-width: 64px;
+	width: 100%;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+.tab-bar__resize-handle {
+	position: absolute;
+	top: 0;
+	right: -3px;
+	width: 6px;
+	height: 100%;
+	cursor: ew-resize;
+	z-index: 1;
+}
+
+.tab-bar__resize-handle:hover {
+	background: #3a6df0;
+	opacity: 0.5;
 }
 
 .tab-bar__badge {

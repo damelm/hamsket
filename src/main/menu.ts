@@ -35,7 +35,7 @@ export function buildMenu(win: BrowserWindow): Menu {
 					click: () => send(win, 'menu:show-preferences')
 				},
 				{ type: 'separator' },
-				isMac ? { role: 'close' } : { role: 'quit' }
+				isMac ? { role: 'close', label: 'Cerrar ventana' } : { role: 'quit', label: 'Salir' }
 			]
 		},
 		{

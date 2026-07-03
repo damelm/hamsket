@@ -35,6 +35,11 @@ if (process.env['HAMSKET_USER_DATA_DIR']) {
 const autoLauncher = new AutoLaunch({ name: 'OpsDesk' })
 
 let mainWindow: BrowserWindow | null = null
+let isQuitting = false
+
+app.on('before-quit', () => {
+	isQuitting = true
+})
 
 function getMainWindow(): BrowserWindow | null {
 	return mainWindow
@@ -81,10 +86,17 @@ function createWindow(): void {
 		if (!getConfig().startMinimized) mainWindow?.show()
 	})
 
-	mainWindow.on('close', () => {
+	mainWindow.on('close', (event) => {
 		if (!mainWindow) return
 		const b = mainWindow.getBounds()
 		setConfig({ bounds: { ...b, maximized: mainWindow.isMaximized() } })
+		// The window has a tray icon — clicking the OS close button should
+		// minimize to tray like the rest of the app, not quit. "Salir" (tray
+		// menu / Archivo menu / Cmd+Q) sets isQuitting first so it still works.
+		if (!isQuitting) {
+			event.preventDefault()
+			mainWindow.hide()
+		}
 	})
 
 	mainWindow.on('closed', () => {
@@ -126,7 +138,11 @@ if (!haveLock) {
 		createWindow()
 
 		app.on('activate', () => {
-			if (BrowserWindow.getAllWindows().length === 0) createWindow()
+			if (BrowserWindow.getAllWindows().length === 0) {
+				createWindow()
+			} else {
+				mainWindow?.show()
+			}
 		})
 	})
 

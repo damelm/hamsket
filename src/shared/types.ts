@@ -38,6 +38,7 @@ export interface AppConfig {
 	proxy: { host: string; port: string; login: string; password: string } | null
 	masterPasswordHash: string | null
 	bounds: { x?: number; y?: number; width: number; height: number; maximized: boolean }
+	sidebarWidth: number
 }
 
 export interface WindowIpcApi {
