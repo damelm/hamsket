@@ -8,12 +8,13 @@ interface Props {
 	active: boolean
 }
 
-// Electron's default webview UA includes an "Electron/x.y.z" token. Several
-// services (WhatsApp Web included, confirmed by hand) refuse to load at all
-// once they spot it, regardless of the underlying Chromium version being
-// current — so webviews get a plain desktop Chrome UA instead.
-const DESKTOP_CHROME_UA =
-	'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+// Electron's default UA includes "OpsDesk/x" and "Electron/x" tokens. Several
+// services (WhatsApp Web included, confirmed by hand) refuse to load — or
+// serve subtly broken code paths, e.g. the voice-message player — when they
+// spot them, or when the advertised Chrome version doesn't match the real
+// engine. So strip just those tokens from the runtime UA: what's left is a
+// genuine, always-current Chrome UA matching the actual Chromium version.
+const DESKTOP_CHROME_UA = navigator.userAgent.replace(/\s(OpsDesk|Electron)\/\S+/g, '')
 
 // <webview> is created imperatively (not as JSX) because TypeScript has no
 // built-in typing for the tag's Electron-specific attributes/events, and the

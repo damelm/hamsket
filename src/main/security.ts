@@ -41,6 +41,9 @@ export function hardenWebviews(win: BrowserWindow): void {
 		webPreferences.nodeIntegration = false
 		webPreferences.contextIsolation = false
 		webPreferences.preload = join(__dirname, '../preload/service.cjs')
+		// Chat apps start playback from code paths Chromium doesn't always credit
+		// as a user gesture (e.g. WhatsApp voice notes queueing the next message).
+		webPreferences.autoplayPolicy = 'no-user-gesture-required'
 	})
 
 	win.webContents.on('did-attach-webview', (_event, contents) => {

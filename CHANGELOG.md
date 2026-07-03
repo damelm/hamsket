@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3] - 2026-07-03
+
+### Fixed
+
+- Second pass at WhatsApp voice messages not playing (the 1.0.2 timer fix wasn't enough on its own). Live diagnosis against a real session showed the app never even opened an audio stream at the OS level, and that WhatsApp was being told the browser is "Chrome 130" while the real engine is Chromium 150 — WhatsApp Web serves version-dependent code for its voice-message player, and a stale hardcoded user agent is the classic trigger for exactly this breakage in Franz/Rambox-family apps. The UA is no longer hardcoded: it's now derived at runtime from the real one by stripping only the `OpsDesk/x` and `Electron/x` tokens, so it always matches the actual Chromium version, on every platform and after every Electron upgrade. Applied to service webviews and the link viewer.
+- Webviews now run with `autoplayPolicy: 'no-user-gesture-required'` — chat apps start playback from code paths Chromium doesn't always credit as a user gesture (e.g. auto-playing the next voice note in a sequence).
+
 ## [1.0.2] - 2026-07-03
 
 ### Added

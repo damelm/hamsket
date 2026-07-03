@@ -1,4 +1,4 @@
-import { BaseWindow, WebContentsView, clipboard, ipcMain, session, shell } from 'electron'
+import { app, BaseWindow, WebContentsView, clipboard, ipcMain, session, shell } from 'electron'
 import { join } from 'node:path'
 import { is } from '@electron-toolkit/utils'
 
@@ -12,10 +12,12 @@ import { is } from '@electron-toolkit/utils'
 
 const TOOLBAR_HEIGHT = 36
 
-// Same rationale as ServiceView: several sites refuse to load when they see an
-// "Electron/x" token in the user agent.
-const DESKTOP_CHROME_UA =
-	'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+// Same rationale as ServiceView: several sites misbehave when they see the
+// "OpsDesk/x" or "Electron/x" tokens, or a Chrome version that doesn't match
+// the real engine. Strip just those tokens from the runtime UA.
+function desktopChromeUa(): string {
+	return app.userAgentFallback.replace(/\s(OpsDesk|Electron)\/\S+/g, '')
+}
 
 const resourcesDir = is.dev ? join(__dirname, '../../resources') : join(process.resourcesPath, 'resources')
 
@@ -65,7 +67,7 @@ export function openLinkWindow(url: string): void {
 	// is written to disk and it evaporates when the window closes.
 	const partition = `link-sandbox-${nextPartitionId++}`
 	const sandboxSession = session.fromPartition(partition)
-	sandboxSession.setUserAgent(DESKTOP_CHROME_UA)
+	sandboxSession.setUserAgent(desktopChromeUa())
 	sandboxSession.setPermissionRequestHandler((_wc, _permission, callback) => callback(false))
 	sandboxSession.on('will-download', (event) => event.preventDefault())
 
