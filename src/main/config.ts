@@ -22,28 +22,40 @@ const defaults: AppConfig = {
 	suspendOnTray: false
 }
 
-export const store = new Store<StoreShape>({
-	defaults: {
-		config: defaults,
-		services: []
+// Constructed lazily on first access, never at import time. electron-store binds
+// its file path to app.getPath('userData') the moment it's built, and index.ts
+// overrides userData (dev profile, or HAMSKET_USER_DATA_DIR for E2E/isolated
+// runs) *after* this module is imported. Building the store eagerly here would
+// capture the default path and silently ignore that override.
+let storeInstance: Store<StoreShape> | null = null
+
+function store(): Store<StoreShape> {
+	if (!storeInstance) {
+		storeInstance = new Store<StoreShape>({
+			defaults: {
+				config: defaults,
+				services: []
+			}
+		})
 	}
-})
+	return storeInstance
+}
 
 export function getConfig(): AppConfig {
-	return { ...defaults, ...store.get('config') }
+	return { ...defaults, ...store().get('config') }
 }
 
 export function setConfig(patch: Partial<AppConfig>): AppConfig {
 	const next = { ...getConfig(), ...patch }
-	store.set('config', next)
+	store().set('config', next)
 	return next
 }
 
 export function listServices(): ServiceInstance[] {
-	return store.get('services', [])
+	return store().get('services', [])
 }
 
 export function saveServices(services: ServiceInstance[]): ServiceInstance[] {
-	store.set('services', services)
+	store().set('services', services)
 	return services
 }
