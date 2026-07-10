@@ -1,6 +1,7 @@
 import { app, BaseWindow, WebContentsView, clipboard, ipcMain, session, shell } from 'electron'
 import { join } from 'node:path'
 import { is } from '@electron-toolkit/utils'
+import { toCleanChromeUA } from '../shared/user-agent'
 
 // Floating sandboxed viewer for links clicked inside a service. The page runs
 // under Chromium's renderer sandbox with no preload and no Node access, in an
@@ -12,11 +13,10 @@ import { is } from '@electron-toolkit/utils'
 
 const TOOLBAR_HEIGHT = 36
 
-// Same rationale as ServiceView: several sites misbehave when they see the
-// "OpsDesk/x" or "Electron/x" tokens, or a Chrome version that doesn't match
-// the real engine. Strip just those tokens from the runtime UA.
+// Same rationale as ServiceView: sites misbehave when they see the "OpsDesk/x"
+// or "Electron/x" tokens. Rebuild a clean, current desktop Chrome UA.
 function desktopChromeUa(): string {
-	return app.userAgentFallback.replace(/\s(OpsDesk|Electron)\/\S+/g, '')
+	return toCleanChromeUA(app.userAgentFallback)
 }
 
 const resourcesDir = is.dev ? join(__dirname, '../../resources') : join(process.resourcesPath, 'resources')

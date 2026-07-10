@@ -9,6 +9,10 @@
 - **Per-service hibernation (opt-in).** Right-click a service → **Hibernar en segundo plano** (or enable it in the add/edit dialog). A hibernating service unloads its webview after a period of inactivity (default 15 min, configurable in Preferencias → Memoria) and shows a lightweight placeholder; reopening it reloads the page. Trade-off, stated in the UI: while asleep it receives no messages or badges until reopened. Off by default.
 - **Suspend-all-on-tray (opt-in).** Preferencias → Memoria → *Descargar todos los servicios al minimizar a la bandeja*. When the window is hidden to the tray, every webview unloads to free RAM and reloads when you reopen the window. Off by default so notifications keep working unless you choose otherwise.
 
+### Fixed
+
+- **WhatsApp Web (and other services) no longer see an "outdated browser" / "update Chrome" gate**, which previously could block even the QR login screen. The desktop User-Agent is now rebuilt from scratch as a clean, current Chrome UA (real platform + real Chromium version only) instead of stripping tokens with a regex — the regex approach broke whenever the app name contained a space (e.g. under a test profile), leaving a non-standard product token that tripped the gate. Confirmed the QR login screen renders correctly.
+
 ### Changed
 
 - **Visual redesign / design system.** Reworked the UI around a token-based design system (color, typography, 4px spacing scale, radii, elevation, motion). Clearer active-service state (accent pill + indicator bar), consistent hover/focus states, restyled dialogs and context menu, empty/loading placeholders, and subtle motion. Text/background pairs verified against WCAG AA (4.5:1) contrast.

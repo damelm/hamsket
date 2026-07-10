@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'preact/hooks'
 import type { WebviewTag } from 'electron'
 import type { ServiceInstance } from '@shared/types'
 import { getServiceByCatalogId } from '@shared/services-catalog'
+import { toCleanChromeUA } from '@shared/user-agent'
 
 interface Props {
 	instance: ServiceInstance
@@ -12,13 +13,10 @@ interface Props {
 	hibernateMinutes: number
 }
 
-// Electron's default UA includes "OpsDesk/x" and "Electron/x" tokens. Several
-// services (WhatsApp Web included, confirmed by hand) refuse to load — or
-// serve subtly broken code paths, e.g. the voice-message player — when they
-// spot them, or when the advertised Chrome version doesn't match the real
-// engine. So strip just those tokens from the runtime UA: what's left is a
-// genuine, always-current Chrome UA matching the actual Chromium version.
-const DESKTOP_CHROME_UA = navigator.userAgent.replace(/\s(OpsDesk|Electron)\/\S+/g, '')
+// Electron's default UA carries non-standard tokens ("OpsDesk/x", "Electron/x")
+// that make services like WhatsApp Web think the browser is outdated — blocking
+// even the QR login screen. Rebuild a clean, current desktop Chrome UA instead.
+const DESKTOP_CHROME_UA = toCleanChromeUA(navigator.userAgent)
 
 // <webview> is created imperatively (not as JSX) because TypeScript has no
 // built-in typing for the tag's Electron-specific attributes/events, and the
