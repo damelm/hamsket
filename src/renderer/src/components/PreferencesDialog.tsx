@@ -13,6 +13,18 @@ export function PreferencesDialog({ config, onChange, onClose }: Props) {
 			<div class="modal modal--wide" onClick={(e) => e.stopPropagation()}>
 				<h2>Preferencias</h2>
 
+				<label class="modal__field">
+					Tema
+					<select
+						value={config.theme}
+						onChange={(e) => onChange({ theme: (e.target as HTMLSelectElement).value as AppConfig['theme'] })}
+					>
+						<option value="system">Seguir al sistema</option>
+						<option value="dark">Oscuro</option>
+						<option value="light">Claro</option>
+					</select>
+				</label>
+
 				<label class="modal__checkbox">
 					<input
 						type="checkbox"
@@ -60,6 +72,19 @@ export function PreferencesDialog({ config, onChange, onClose }: Props) {
 
 				<fieldset class="modal__fieldset">
 					<legend>Memoria (RAM)</legend>
+
+					<label class="modal__checkbox">
+						<input
+							type="checkbox"
+							checked={config.preloadAll}
+							onChange={(e) => onChange({ preloadAll: (e.target as HTMLInputElement).checked })}
+						/>
+						Precargar todos los servicios al iniciar (recomendado para call center)
+					</label>
+					<p class="modal__note">
+						Deja todas las sesiones vivas y notificando desde el arranque, a cambio de más memoria. Si está
+						apagado, cada servicio se carga la primera vez que lo abrís.
+					</p>
 
 					<label class="modal__checkbox">
 						<input

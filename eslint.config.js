@@ -5,7 +5,7 @@ import globals from 'globals'
 import eslintConfigPrettier from 'eslint-config-prettier'
 
 export default tseslint.config(
-	{ ignores: ['out/**', 'dist/**', 'resources/**', 'node_modules/**', 'test-results/**'] },
+	{ ignores: ['out/**', 'dist/**', 'resources/**', 'node_modules/**', 'test-results/**', 'scripts/**'] },
 	js.configs.recommended,
 	...tseslint.configs.recommended,
 	{

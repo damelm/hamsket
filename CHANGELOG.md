@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.2.0] - 2026-07-10
+
+### Added
+
+- **New brand identity.** The app icon, favicon, tray icon, and installer icon are now generated from the company's four-leaf-clover logo (orange + black). Regenerate any time with `node scripts/gen-icons.cjs <logo.png>`.
+- **"Operations room" redesign.** New look built around a burnt-orange (`#8C3400`) + black brand gradient:
+  - Operations header with the brand gradient, the app name over a `CENTRO DE OPERACIONES` label, and a live NOC status strip (`● N en línea · ◐ N en pausa · clock`).
+  - Sidebar reworked into a service control panel: real per-service live state (`EN LÍNEA` / `EN PAUSA` with a pulsing dot), a sliding active-indicator, unread badges, and a compact icons-only rail when narrowed.
+  - Monospaced type for data/labels; consistent hover, focus, and press states.
+- **Light and dark themes.** Preferencias → Tema (seguir al sistema / oscuro / claro), with a one-click toggle in the header. Following the OS updates live when Windows switches.
+- **Preload-all option.** Preferencias → Memoria → *Precargar todos los servicios al iniciar* — loads every service at startup so all sessions are live and notifying from minute zero (recommended for call centers). Off by default; when off, each service still loads lazily on first open.
+- **Real motion:** sliding active-indicator, hover row-shift, badge pop-in, live status pulse, window-entry and dialog transitions, and a smooth theme cross-fade — all disabled under "reduce motion".
+
+### Fixed
+
+- Switching between already-opened services never reloads them — an opened service stays live in the background (hidden, not destroyed), so returning to it is instant with no re-fetch of chat history.
+
+### Notes
+
+- Clarified the memory model: lazy loading only defers a service's *first* open in a session; once opened it stays live. Hibernation and tray-suspend remain opt-in and off by default. For a call center, leave both off (and turn on preload-all) so no session ever unloads.
+
 ## [1.1.0] - 2026-07-10
 
 ### Added

@@ -46,6 +46,12 @@ export interface AppConfig {
 	hibernateMinutes: number
 	/** Unload all service webviews while the window is hidden in the tray (default false). */
 	suspendOnTray: boolean
+	/** UI color theme. 'system' follows the OS setting. */
+	theme: 'system' | 'light' | 'dark'
+	/** Load every service at startup (all sessions live from minute zero) instead of
+	 *  loading each one lazily on first open. Costs more RAM; recommended for call
+	 *  centers that need notifications from every account immediately. */
+	preloadAll: boolean
 }
 
 export interface WindowIpcApi {

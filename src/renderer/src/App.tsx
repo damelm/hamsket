@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks'
+import { useCallback, useEffect, useMemo, useState } from 'preact/hooks'
 import { useServices } from './hooks/useServices'
 import { useConfig } from './hooks/useConfig'
 import { TabBar } from './components/TabBar'
@@ -29,8 +29,50 @@ export function App() {
 	const [activated, setActivated] = useState<Set<string>>(new Set())
 	// Tray-suspend: all webviews unload while the window is hidden in the tray.
 	const [suspended, setSuspended] = useState(false)
+	// Per-service live state (webview loaded) — drives the sidebar status indicators.
+	const [live, setLive] = useState<Record<string, boolean>>({})
+	// Resolved color theme ('light' | 'dark') after applying the 'system' setting.
+	const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark')
+
+	const reportLive = useCallback((id: string, value: boolean) => {
+		setLive((prev) => (prev[id] === value ? prev : { ...prev, [id]: value }))
+	}, [])
 
 	const reloadService = (id: string) => setReloadNonces((prev) => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }))
+
+	// Apply the color theme to the document, following the OS when set to 'system'.
+	useEffect(() => {
+		if (!config) return
+		const mq = window.matchMedia('(prefers-color-scheme: dark)')
+		const apply = () => {
+			const t = config.theme === 'system' ? (mq.matches ? 'dark' : 'light') : config.theme
+			setResolvedTheme(t)
+			document.documentElement.setAttribute('data-theme', t)
+		}
+		apply()
+		if (config.theme === 'system') {
+			mq.addEventListener('change', apply)
+			return () => mq.removeEventListener('change', apply)
+		}
+		return undefined
+		// Only re-run when the theme setting changes, not on every config field.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [config?.theme])
+
+	const toggleTheme = () => setConfig({ theme: resolvedTheme === 'dark' ? 'light' : 'dark' })
+
+	// Preload-all: keep every service activated so all sessions stay live.
+	useEffect(() => {
+		if (config?.preloadAll && services.length > 0) {
+			setActivated((prev) => {
+				const next = new Set(prev)
+				services.forEach((s) => next.add(s.id))
+				return next.size === prev.size ? prev : next
+			})
+		}
+	}, [config?.preloadAll, services])
+
+	const liveCount = useMemo(() => services.filter((s) => live[s.id]).length, [services, live])
 
 	useEffect(() => {
 		if (activeId && !activated.has(activeId)) {
@@ -95,7 +137,7 @@ export function App() {
 	if (locked) {
 		return (
 			<div class="app-root">
-				<TitleBar />
+				<TitleBar theme={resolvedTheme} onToggleTheme={toggleTheme} total={0} online={0} />
 				<MasterPasswordScreen onUnlock={() => setLocked(false)} />
 			</div>
 		)
@@ -103,12 +145,18 @@ export function App() {
 
 	return (
 		<div class="app-root">
-			<TitleBar />
+			<TitleBar
+				theme={resolvedTheme}
+				onToggleTheme={toggleTheme}
+				total={services.length}
+				online={liveCount}
+			/>
 			<div class="app-shell">
 			<TabBar
 				services={services}
 				activeId={activeId}
 				badges={badges}
+				live={live}
 				width={liveSidebarWidth ?? config.sidebarWidth}
 				onResize={setLiveSidebarWidth}
 				onResizeEnd={(w) => {
@@ -139,6 +187,7 @@ export function App() {
 							reloadNonce={reloadNonces[service.id] ?? 0}
 							suspended={suspended}
 							hibernateMinutes={config.hibernateMinutes}
+							onLive={reportLive}
 						/>
 					))}
 			</div>

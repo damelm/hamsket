@@ -11,6 +11,8 @@ interface Props {
 	/** Global tray-suspend signal: when true, every service unloads its webview. */
 	suspended: boolean
 	hibernateMinutes: number
+	/** Reports whether this service's webview is currently loaded (live) or unloaded. */
+	onLive: (id: string, live: boolean) => void
 }
 
 // Electron's default UA carries non-standard tokens ("OpsDesk/x", "Electron/x")
@@ -23,7 +25,7 @@ const DESKTOP_CHROME_UA = toCleanChromeUA(navigator.userAgent)
 // element's own methods (setAudioMuted, setZoomLevel, executeJavaScript) are
 // how Electron expects you to drive it — there isn't a meaningful declarative
 // prop mapping for most of it.
-export function ServiceView({ instance, active, reloadNonce, suspended, hibernateMinutes }: Props) {
+export function ServiceView({ instance, active, reloadNonce, suspended, hibernateMinutes, onLive }: Props) {
 	const containerRef = useRef<HTMLDivElement>(null)
 	const lastScriptCount = useRef(0)
 	const lastTitleCount = useRef(0)
@@ -47,6 +49,13 @@ export function ServiceView({ instance, active, reloadNonce, suspended, hibernat
 
 	// The webview only exists in the DOM while loaded. Unloaded = 0 RAM for it.
 	const loaded = !suspended && !sleeping
+
+	// Report live state to the sidebar's status indicators.
+	useEffect(() => {
+		onLive(instance.id, loaded)
+		return () => onLive(instance.id, false)
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [loaded, instance.id])
 
 	useEffect(() => {
 		if (!loaded) return

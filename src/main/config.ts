@@ -17,9 +17,11 @@ const defaults: AppConfig = {
 	proxy: null,
 	masterPasswordHash: null,
 	bounds: { width: 1200, height: 800, maximized: false },
-	sidebarWidth: 76,
+	sidebarWidth: 232,
 	hibernateMinutes: 15,
-	suspendOnTray: false
+	suspendOnTray: false,
+	theme: 'system',
+	preloadAll: false
 }
 
 // Constructed lazily on first access, never at import time. electron-store binds
