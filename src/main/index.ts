@@ -71,6 +71,10 @@ function createWindow(): void {
 		width: bounds.width,
 		height: bounds.height,
 		show: false,
+		// Frameless: OpsDesk draws its own title bar (TitleBar.tsx) so the dark
+		// theme runs edge-to-edge instead of colliding with the OS gray frame.
+		frame: false,
+		backgroundColor: '#16181d',
 		icon: join(resourcesDir, 'Icon.png'),
 		webPreferences: {
 			preload: join(__dirname, '../preload/index.cjs'),
@@ -109,6 +113,19 @@ function createWindow(): void {
 	mainWindow.on('closed', () => {
 		mainWindow = null
 	})
+
+	// Tray-suspend: when the window is hidden to the tray, optionally tell the
+	// renderer to unload every service webview to free RAM; reload on show.
+	mainWindow.on('hide', () => {
+		if (getConfig().suspendOnTray) mainWindow?.webContents.send('service:suspend')
+	})
+	mainWindow.on('show', () => {
+		mainWindow?.webContents.send('service:resume')
+	})
+
+	// The custom title bar swaps its maximize/restore icon in response to these.
+	mainWindow.on('maximize', () => mainWindow?.webContents.send('window:maximized', true))
+	mainWindow.on('unmaximize', () => mainWindow?.webContents.send('window:maximized', false))
 
 	applyConfigToWindow(mainWindow)
 

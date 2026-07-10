@@ -58,6 +58,37 @@ export function PreferencesDialog({ config, onChange, onClose }: Props) {
 					No molestar
 				</label>
 
+				<fieldset class="modal__fieldset">
+					<legend>Memoria (RAM)</legend>
+
+					<label class="modal__checkbox">
+						<input
+							type="checkbox"
+							checked={config.suspendOnTray}
+							onChange={(e) => onChange({ suspendOnTray: (e.target as HTMLInputElement).checked })}
+						/>
+						Descargar todos los servicios al minimizar a la bandeja
+					</label>
+
+					<label class="modal__field">
+						Hibernar servicios inactivos tras (minutos)
+						<input
+							type="number"
+							min={1}
+							max={240}
+							value={config.hibernateMinutes}
+							onInput={(e) => {
+								const n = Number((e.target as HTMLInputElement).value)
+								if (Number.isFinite(n) && n >= 1) onChange({ hibernateMinutes: Math.round(n) })
+							}}
+						/>
+					</label>
+					<p class="modal__note">
+						La hibernación se activa por servicio (clic derecho → «Hibernar en segundo plano»). Un servicio
+						dormido no recibe mensajes hasta reabrirlo.
+					</p>
+				</fieldset>
+
 				<MasterPasswordSection />
 
 				<div class="modal__actions">

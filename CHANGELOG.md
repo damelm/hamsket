@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.1.0] - 2026-07-10
+
+### Added
+
+- **Custom frameless title bar.** OpsDesk now draws its own dark title bar (logo, app name, minimize / maximize / close controls) instead of the gray OS frame that clashed with the dark theme. The native application menu (Archivo / Ver / Ayuda), which is hidden along with the frame, is now reached from a **☰** button in the title bar; all its keyboard shortcuts still work. The close button keeps the existing close-to-tray behavior.
+- **Lazy loading of services.** A service's `<webview>` is only created the first time you open it. Services you never open in a session no longer spend any memory or CPU. On by default, no downside.
+- **Per-service hibernation (opt-in).** Right-click a service → **Hibernar en segundo plano** (or enable it in the add/edit dialog). A hibernating service unloads its webview after a period of inactivity (default 15 min, configurable in Preferencias → Memoria) and shows a lightweight placeholder; reopening it reloads the page. Trade-off, stated in the UI: while asleep it receives no messages or badges until reopened. Off by default.
+- **Suspend-all-on-tray (opt-in).** Preferencias → Memoria → *Descargar todos los servicios al minimizar a la bandeja*. When the window is hidden to the tray, every webview unloads to free RAM and reloads when you reopen the window. Off by default so notifications keep working unless you choose otherwise.
+
+### Changed
+
+- **Visual redesign / design system.** Reworked the UI around a token-based design system (color, typography, 4px spacing scale, radii, elevation, motion). Clearer active-service state (accent pill + indicator bar), consistent hover/focus states, restyled dialogs and context menu, empty/loading placeholders, and subtle motion. Text/background pairs verified against WCAG AA (4.5:1) contrast.
+
+### Notes
+
+- These are OpsDesk's own optimizations on Electron; no runtime/technology change. A messaging hub that shows live notifications for every account can't reduce RAM without giving up some of those live notifications, so the aggressive levers (hibernation, tray-suspend) ship **opt-in with safe defaults** — you choose your own RAM/notifications balance.
+- **Measured RAM (Windows working-set sum, overcounts shared memory):** v1.0.5 loaded every configured service eagerly at startup — one renderer process per service. A real profile with ~6 services measured **~2555 MB across 12 processes (7 renderers)** with most services never opened. v1.1.0 with lazy loading only renders services you actually open: a 2-service profile with one opened measured **~521 MB across 5 processes (2 renderers = host UI + 1 service)**; the unopened service spent nothing until selected. The startup win scales with how many configured services you leave unopened; hibernation and tray-suspend reclaim memory from services you have opened.
+
 ## [1.0.5] - 2026-07-03
 
 ### Added

@@ -17,7 +17,9 @@ const defaults: AppConfig = {
 	proxy: null,
 	masterPasswordHash: null,
 	bounds: { width: 1200, height: 800, maximized: false },
-	sidebarWidth: 76
+	sidebarWidth: 76,
+	hibernateMinutes: 15,
+	suspendOnTray: false
 }
 
 export const store = new Store<StoreShape>({

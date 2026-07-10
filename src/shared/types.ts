@@ -25,6 +25,9 @@ export interface ServiceInstance {
 	notifications: boolean
 	trustSelfSigned: boolean
 	zoomLevel: number
+	/** Unload this service's webview after inactivity to free RAM (default false).
+	 *  While hibernated it stops receiving messages/badges until reopened. */
+	hibernate: boolean
 }
 
 export interface AppConfig {
@@ -39,6 +42,10 @@ export interface AppConfig {
 	masterPasswordHash: string | null
 	bounds: { x?: number; y?: number; width: number; height: number; maximized: boolean }
 	sidebarWidth: number
+	/** Minutes a hibernate-enabled service stays inactive before its webview is unloaded. */
+	hibernateMinutes: number
+	/** Unload all service webviews while the window is hidden in the tray (default false). */
+	suspendOnTray: boolean
 }
 
 export interface WindowIpcApi {
@@ -63,4 +70,10 @@ export interface WindowIpcApi {
 	relaunchApp: () => Promise<void>
 	openExternal: (url: string) => Promise<void>
 	checkForUpdates: () => Promise<void>
+
+	minimizeWindow: () => Promise<void>
+	toggleMaximizeWindow: () => Promise<void>
+	closeWindow: () => Promise<void>
+	isWindowMaximized: () => Promise<boolean>
+	popupMenu: (x: number, y: number) => Promise<void>
 }

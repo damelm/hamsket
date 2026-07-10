@@ -8,6 +8,7 @@ import { PreferencesDialog } from './components/PreferencesDialog'
 import { MasterPasswordScreen } from './components/MasterPasswordScreen'
 import { AboutDialog } from './components/AboutDialog'
 import { ServiceContextMenu } from './components/ServiceContextMenu'
+import { TitleBar } from './components/TitleBar'
 import type { ServiceInstance } from '@shared/types'
 
 export function App() {
@@ -23,8 +24,19 @@ export function App() {
 	const [liveSidebarWidth, setLiveSidebarWidth] = useState<number | null>(null)
 	const [contextMenu, setContextMenu] = useState<{ service: ServiceInstance; x: number; y: number } | null>(null)
 	const [reloadNonces, setReloadNonces] = useState<Record<string, number>>({})
+	// Lazy-load: a service's webview is only created once it has been activated.
+	// Services you never open never spend RAM.
+	const [activated, setActivated] = useState<Set<string>>(new Set())
+	// Tray-suspend: all webviews unload while the window is hidden in the tray.
+	const [suspended, setSuspended] = useState(false)
 
 	const reloadService = (id: string) => setReloadNonces((prev) => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }))
+
+	useEffect(() => {
+		if (activeId && !activated.has(activeId)) {
+			setActivated((prev) => new Set(prev).add(activeId))
+		}
+	}, [activeId, activated])
 
 	useEffect(() => {
 		window.hamsketApi.hasMasterPassword().then(setLocked)
@@ -34,6 +46,10 @@ export function App() {
 		return window.hamsketEvents.onServiceBadge((serviceId, direct) => {
 			setBadges((prev) => ({ ...prev, [serviceId]: direct }))
 		})
+	}, [])
+
+	useEffect(() => {
+		return window.hamsketEvents.onSuspendState(setSuspended)
 	}, [])
 
 	useEffect(() => {
@@ -77,11 +93,18 @@ export function App() {
 	if (!loaded || !config || locked === null) return null
 
 	if (locked) {
-		return <MasterPasswordScreen onUnlock={() => setLocked(false)} />
+		return (
+			<div class="app-root">
+				<TitleBar />
+				<MasterPasswordScreen onUnlock={() => setLocked(false)} />
+			</div>
+		)
 	}
 
 	return (
-		<div class="app-shell">
+		<div class="app-root">
+			<TitleBar />
+			<div class="app-shell">
 			<TabBar
 				services={services}
 				activeId={activeId}
@@ -101,18 +124,23 @@ export function App() {
 			<div class="service-stack">
 				{services.length === 0 && (
 					<div class="empty-state">
+						<div class="empty-state__glyph">💬</div>
 						<p>Todavía no agregaste ningún servicio.</p>
 						<button onClick={() => setAddOpen(true)}>Agregar servicio</button>
 					</div>
 				)}
-				{services.map((service) => (
-					<ServiceView
-						key={service.id}
-						instance={service}
-						active={service.id === activeId}
-						reloadNonce={reloadNonces[service.id] ?? 0}
-					/>
-				))}
+				{services
+					.filter((service) => activated.has(service.id))
+					.map((service) => (
+						<ServiceView
+							key={service.id}
+							instance={service}
+							active={service.id === activeId}
+							reloadNonce={reloadNonces[service.id] ?? 0}
+							suspended={suspended}
+							hibernateMinutes={config.hibernateMinutes}
+						/>
+					))}
 			</div>
 
 			{addOpen && (
@@ -157,6 +185,10 @@ export function App() {
 						updateService(contextMenu.service.id, { muted: !contextMenu.service.muted })
 						setContextMenu(null)
 					}}
+					onToggleHibernate={() => {
+						updateService(contextMenu.service.id, { hibernate: !contextMenu.service.hibernate })
+						setContextMenu(null)
+					}}
 					onRemove={() => {
 						removeService(contextMenu.service.id)
 						setContextMenu(null)
@@ -164,6 +196,7 @@ export function App() {
 					onClose={() => setContextMenu(null)}
 				/>
 			)}
+			</div>
 		</div>
 	)
 }

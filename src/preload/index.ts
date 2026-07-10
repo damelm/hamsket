@@ -28,7 +28,13 @@ const api: WindowIpcApi = {
 	reloadApp: () => ipcRenderer.invoke('app:reload'),
 	relaunchApp: () => ipcRenderer.invoke('app:relaunch'),
 	openExternal: (url: string) => ipcRenderer.invoke('app:openExternal', url),
-	checkForUpdates: () => ipcRenderer.invoke('updater:check')
+	checkForUpdates: () => ipcRenderer.invoke('updater:check'),
+
+	minimizeWindow: () => ipcRenderer.invoke('window:minimize'),
+	toggleMaximizeWindow: () => ipcRenderer.invoke('window:toggle-maximize'),
+	closeWindow: () => ipcRenderer.invoke('window:close'),
+	isWindowMaximized: () => ipcRenderer.invoke('window:is-maximized'),
+	popupMenu: (x: number, y: number) => ipcRenderer.invoke('window:popup-menu', x, y)
 }
 
 const MENU_CHANNELS = [
@@ -78,6 +84,21 @@ const events = {
 		const handler = (_event: Electron.IpcRendererEvent, serviceId: string) => listener(serviceId)
 		ipcRenderer.on('services:focus', handler)
 		return () => ipcRenderer.removeListener('services:focus', handler)
+	},
+	onSuspendState: (listener: (suspended: boolean) => void) => {
+		const onSuspend = () => listener(true)
+		const onResume = () => listener(false)
+		ipcRenderer.on('service:suspend', onSuspend)
+		ipcRenderer.on('service:resume', onResume)
+		return () => {
+			ipcRenderer.removeListener('service:suspend', onSuspend)
+			ipcRenderer.removeListener('service:resume', onResume)
+		}
+	},
+	onWindowMaximized: (listener: (maximized: boolean) => void) => {
+		const handler = (_event: Electron.IpcRendererEvent, maximized: boolean) => listener(maximized)
+		ipcRenderer.on('window:maximized', handler)
+		return () => ipcRenderer.removeListener('window:maximized', handler)
 	}
 }
 

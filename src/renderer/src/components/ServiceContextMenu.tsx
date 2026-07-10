@@ -8,11 +8,22 @@ interface Props {
 	onEdit: () => void
 	onReload: () => void
 	onToggleMute: () => void
+	onToggleHibernate: () => void
 	onRemove: () => void
 	onClose: () => void
 }
 
-export function ServiceContextMenu({ service, x, y, onEdit, onReload, onToggleMute, onRemove, onClose }: Props) {
+export function ServiceContextMenu({
+	service,
+	x,
+	y,
+	onEdit,
+	onReload,
+	onToggleMute,
+	onToggleHibernate,
+	onRemove,
+	onClose
+}: Props) {
 	useEffect(() => {
 		const close = () => onClose()
 		window.addEventListener('click', close)
@@ -39,6 +50,9 @@ export function ServiceContextMenu({ service, x, y, onEdit, onReload, onToggleMu
 			</button>
 			<button class="context-menu__item" onClick={onToggleMute}>
 				{service.muted ? 'Reactivar audio' : 'Silenciar audio'}
+			</button>
+			<button class="context-menu__item" onClick={onToggleHibernate}>
+				{service.hibernate ? 'No hibernar en segundo plano' : 'Hibernar en segundo plano'}
 			</button>
 			<div class="context-menu__sep" />
 			<button class="context-menu__item context-menu__item--danger" onClick={onRemove}>

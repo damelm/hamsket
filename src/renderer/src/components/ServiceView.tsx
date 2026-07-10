@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'preact/hooks'
+import { useEffect, useRef, useState } from 'preact/hooks'
 import type { WebviewTag } from 'electron'
 import type { ServiceInstance } from '@shared/types'
 import { getServiceByCatalogId } from '@shared/services-catalog'
@@ -7,6 +7,9 @@ interface Props {
 	instance: ServiceInstance
 	active: boolean
 	reloadNonce: number
+	/** Global tray-suspend signal: when true, every service unloads its webview. */
+	suspended: boolean
+	hibernateMinutes: number
 }
 
 // Electron's default UA includes "OpsDesk/x" and "Electron/x" tokens. Several
@@ -22,14 +25,33 @@ const DESKTOP_CHROME_UA = navigator.userAgent.replace(/\s(OpsDesk|Electron)\/\S+
 // element's own methods (setAudioMuted, setZoomLevel, executeJavaScript) are
 // how Electron expects you to drive it — there isn't a meaningful declarative
 // prop mapping for most of it.
-export function ServiceView({ instance, active, reloadNonce }: Props) {
+export function ServiceView({ instance, active, reloadNonce, suspended, hibernateMinutes }: Props) {
 	const containerRef = useRef<HTMLDivElement>(null)
 	const lastScriptCount = useRef(0)
 	const lastTitleCount = useRef(0)
 	const readyRef = useRef(false)
 	const firstNonce = useRef(reloadNonce)
+	// Hibernated services drop their webview after inactivity to free RAM.
+	const [sleeping, setSleeping] = useState(false)
+
+	// Active services never sleep; opening one wakes it immediately.
+	useEffect(() => {
+		if (active) setSleeping(false)
+	}, [active])
+
+	// Start the inactivity countdown for hibernate-enabled services.
+	useEffect(() => {
+		if (active || !instance.hibernate) return
+		const ms = Math.max(1, hibernateMinutes) * 60_000
+		const t = setTimeout(() => setSleeping(true), ms)
+		return () => clearTimeout(t)
+	}, [active, instance.hibernate, hibernateMinutes])
+
+	// The webview only exists in the DOM while loaded. Unloaded = 0 RAM for it.
+	const loaded = !suspended && !sleeping
 
 	useEffect(() => {
+		if (!loaded) return
 		const container = containerRef.current
 		if (!container) return
 		readyRef.current = false
@@ -73,13 +95,12 @@ export function ServiceView({ instance, active, reloadNonce }: Props) {
 
 		container.appendChild(webview)
 		return () => {
-			container.removeChild(webview)
+			if (container.contains(webview)) container.removeChild(webview)
 		}
-		// Only (re)create the webview when the instance identity or its fixed URL
-		// changes — mutable fields like muted/zoom are pushed via imperative calls
-		// below instead of remounting the whole guest page.
+		// (Re)created when the service identity/URL changes or when it loads/unloads.
+		// Mutable fields (muted/zoom) are pushed imperatively below.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [instance.id, instance.catalogId, instance.url])
+	}, [loaded, instance.id, instance.catalogId, instance.url])
 
 	useEffect(() => {
 		if (!readyRef.current) return
@@ -104,5 +125,18 @@ export function ServiceView({ instance, active, reloadNonce }: Props) {
 		}
 	}, [reloadNonce])
 
-	return <div ref={containerRef} class="service-view" style={{ display: active ? 'block' : 'none' }} />
+	// The webview lives in its own dedicated div (containerRef) that Preact never
+	// renders children into, so imperative appendChild and Preact's reconciliation
+	// of the placeholder overlay don't fight over the same DOM node.
+	return (
+		<div class="service-view" style={{ display: active ? 'block' : 'none' }}>
+			<div ref={containerRef} class="service-view__host" />
+			{active && !loaded && (
+				<div class="service-view__placeholder">
+					<div class="empty-state__glyph">😴</div>
+					<p>Reanudando {instance.name}…</p>
+				</div>
+			)}
+		</div>
+	)
 }

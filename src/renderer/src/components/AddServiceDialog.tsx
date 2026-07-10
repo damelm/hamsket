@@ -12,7 +12,8 @@ interface Props {
 
 const DEFAULTS = {
 	enabled: true,
-	zoomLevel: 0
+	zoomLevel: 0,
+	hibernate: false
 }
 
 export function AddServiceDialog({ editing, onAdd, onUpdate, onRemove, onClose }: Props) {
@@ -22,6 +23,7 @@ export function AddServiceDialog({ editing, onAdd, onUpdate, onRemove, onClose }
 	const [notifications, setNotifications] = useState(editing?.notifications ?? true)
 	const [muted, setMuted] = useState(editing?.muted ?? false)
 	const [trustSelfSigned, setTrustSelfSigned] = useState(editing?.trustSelfSigned ?? false)
+	const [hibernate, setHibernate] = useState(editing?.hibernate ?? false)
 
 	const catalog = pickedCatalogId ? getServiceByCatalogId(pickedCatalogId) : undefined
 
@@ -36,7 +38,7 @@ export function AddServiceDialog({ editing, onAdd, onUpdate, onRemove, onClose }
 	function submit() {
 		if (!catalog || !url) return
 		if (editing) {
-			onUpdate(editing.id, { name, url, notifications, muted, trustSelfSigned })
+			onUpdate(editing.id, { name, url, notifications, muted, trustSelfSigned, hibernate })
 		} else {
 			onAdd({
 				catalogId: catalog.id,
@@ -45,7 +47,8 @@ export function AddServiceDialog({ editing, onAdd, onUpdate, onRemove, onClose }
 				notifications,
 				muted,
 				trustSelfSigned,
-				...DEFAULTS
+				...DEFAULTS,
+				hibernate
 			})
 		}
 		onClose()
@@ -109,6 +112,20 @@ export function AddServiceDialog({ editing, onAdd, onUpdate, onRemove, onClose }
 							/>
 							Confiar en certificado autofirmado
 						</label>
+
+						<label class="modal__checkbox">
+							<input
+								type="checkbox"
+								checked={hibernate}
+								onChange={(e) => setHibernate((e.target as HTMLInputElement).checked)}
+							/>
+							Hibernar en segundo plano (ahorra RAM)
+						</label>
+						{hibernate && (
+							<p class="modal__note">
+								Mientras esté dormido no recibe mensajes ni notificaciones hasta que lo vuelvas a abrir.
+							</p>
+						)}
 
 						<div class="modal__actions">
 							<button onClick={submit} disabled={!url || !name}>

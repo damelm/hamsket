@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { randomUUID } from 'node:crypto'
 import { getConfig, setConfig, listServices, saveServices } from './config'
 import { hashPassword, verifyPassword } from './master-password'
+import { buildMenu } from './menu'
 import type { ServiceInstance } from '../shared/types'
 
 interface RegisterOptions {
@@ -80,5 +81,24 @@ export function registerIpcHandlers({ getMainWindow, onConfigChanged }: Register
 		if (url.startsWith('http://') || url.startsWith('https://')) {
 			await shell.openExternal(url)
 		}
+	})
+
+	// Custom (frameless) title-bar window controls.
+	ipcMain.handle('window:minimize', () => getMainWindow()?.minimize())
+	ipcMain.handle('window:toggle-maximize', () => {
+		const win = getMainWindow()
+		if (!win) return
+		if (win.isMaximized()) win.unmaximize()
+		else win.maximize()
+	})
+	ipcMain.handle('window:close', () => getMainWindow()?.close())
+	ipcMain.handle('window:is-maximized', () => getMainWindow()?.isMaximized() ?? false)
+
+	// The native application menu is hidden with the frame, so the title bar's
+	// ☰ button pops it up on demand instead.
+	ipcMain.handle('window:popup-menu', (_event, x: number, y: number) => {
+		const win = getMainWindow()
+		if (!win) return
+		buildMenu(win).popup({ window: win, x: Math.round(x), y: Math.round(y) })
 	})
 }
