@@ -12,6 +12,7 @@
 - **Light and dark themes.** Preferencias → Tema (seguir al sistema / oscuro / claro), with a one-click toggle in the header. Following the OS updates live when Windows switches.
 - **Preload-all option.** Preferencias → Memoria → *Precargar todos los servicios al iniciar* — loads every service at startup so all sessions are live and notifying from minute zero (recommended for call centers). Off by default; when off, each service still loads lazily on first open.
 - **Real motion:** sliding active-indicator, hover row-shift, badge pop-in, live status pulse, window-entry and dialog transitions, and a smooth theme cross-fade — all disabled under "reduce motion".
+- **No decorative boxes.** Removed the rounded container/pill around non-interactive elements (service icons, header logo, the NOC "en línea"/clock, the service count). Boxes are reserved for interactive controls and real indicators (buttons, unread badges); everything informational is organized with type, color, and spacing instead.
 
 ### Fixed
 
