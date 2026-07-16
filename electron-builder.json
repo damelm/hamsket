@@ -5,7 +5,8 @@
 	"publish": {
 		"provider": "github",
 		"owner": "damelm",
-		"repo": "hamsket"
+		"repo": "hamsket",
+		"releaseType": "release"
 	},
 	"files": ["out/**/*", "package.json"],
 	"extraResources": [{ "from": "resources", "to": "resources" }],
