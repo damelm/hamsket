@@ -21,7 +21,8 @@ const defaults: AppConfig = {
 	hibernateMinutes: 15,
 	suspendOnTray: false,
 	theme: 'system',
-	preloadAll: false
+	preloadAll: false,
+	autoUpdate: true
 }
 
 // Constructed lazily on first access, never at import time. electron-store binds

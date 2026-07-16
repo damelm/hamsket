@@ -70,6 +70,15 @@ export function PreferencesDialog({ config, onChange, onClose }: Props) {
 					No molestar
 				</label>
 
+				<label class="modal__checkbox">
+					<input
+						type="checkbox"
+						checked={config.autoUpdate}
+						onChange={(e) => onChange({ autoUpdate: (e.target as HTMLInputElement).checked })}
+					/>
+					Actualizar automáticamente
+				</label>
+
 				<fieldset class="modal__fieldset">
 					<legend>Memoria (RAM)</legend>
 

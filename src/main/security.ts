@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { is } from '@electron-toolkit/utils'
 import { listServices } from './config'
 import { openLinkWindow } from './link-window'
+import { applyServiceProxyToSession } from './proxy'
 import type { ServiceCatalogId } from '../shared/types'
 
 // Popups from a small, fixed set of well-known OAuth/SSO providers are allowed
@@ -44,9 +45,19 @@ export function hardenWebviews(win: BrowserWindow): void {
 		// Chat apps start playback from code paths Chromium doesn't always credit
 		// as a user gesture (e.g. WhatsApp voice notes queueing the next message).
 		webPreferences.autoplayPolicy = 'no-user-gesture-required'
+		// Keep background service webviews at full speed. Chromium throttles timers
+		// and network in unfocused renderers, which can starve WhatsApp Web's
+		// multi-device keep-alive websocket and make a backgrounded line drop
+		// ("cae al minuto"). These are always-on messaging sessions, not idle tabs.
+		webPreferences.backgroundThrottling = false
 	})
 
 	win.webContents.on('did-attach-webview', (_event, contents) => {
+		// Route this line's traffic through its configured proxy (if any) before
+		// it loads. No proxy set = direct. See src/main/proxy.ts.
+		const owner = findServiceForSession(contents.session)
+		if (owner) applyServiceProxyToSession(contents.session, owner)
+
 		contents.setWindowOpenHandler(({ url }) => {
 			let parsed: URL
 			try {

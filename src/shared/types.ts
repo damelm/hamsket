@@ -14,6 +14,20 @@ export interface ServiceCatalogEntry {
 	note?: string
 }
 
+/** Outbound proxy for a service's session, so a line can exit through a specific
+ *  country's IP (e.g. an Argentine residential/mobile proxy for an AR WhatsApp
+ *  line accessed from abroad). Backend-only for now — no UI wires this yet. */
+export interface ServiceProxy {
+	host: string
+	port: number
+	username?: string
+	password?: string
+	/** ISO country of the exit IP, for display/organization (e.g. 'AR'). */
+	country?: string
+	/** Human label, e.g. "AR móvil 1". */
+	label?: string
+}
+
 export interface ServiceInstance {
 	id: string
 	catalogId: ServiceCatalogId
@@ -28,6 +42,9 @@ export interface ServiceInstance {
 	/** Unload this service's webview after inactivity to free RAM (default false).
 	 *  While hibernated it stops receiving messages/badges until reopened. */
 	hibernate: boolean
+	/** Optional per-line outbound proxy. Absent/null = direct (local country).
+	 *  Wired in the main process; the UI to set it is not built yet. */
+	proxy?: ServiceProxy | null
 }
 
 export interface AppConfig {
@@ -52,6 +69,9 @@ export interface AppConfig {
 	 *  loading each one lazily on first open. Costs more RAM; recommended for call
 	 *  centers that need notifications from every account immediately. */
 	preloadAll: boolean
+	/** Automatically check for, download, and (on next restart) install updates
+	 *  from GitHub Releases. Shows a discreet "restart to update" notice. */
+	autoUpdate: boolean
 }
 
 export interface WindowIpcApi {
@@ -76,6 +96,7 @@ export interface WindowIpcApi {
 	relaunchApp: () => Promise<void>
 	openExternal: (url: string) => Promise<void>
 	checkForUpdates: () => Promise<void>
+	quitAndInstallUpdate: () => Promise<void>
 
 	minimizeWindow: () => Promise<void>
 	toggleMaximizeWindow: () => Promise<void>

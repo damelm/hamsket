@@ -1,0 +1,27 @@
+name: Release
+
+# Push a version tag (e.g. v1.3.0) to build the Windows installer and publish it
+# as a GitHub Release. Installed apps poll this feed (electron-updater) and update
+# themselves. The tag should match the version in package.json.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Build installer and publish to GitHub Releases
+        run: npx electron-builder --win --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

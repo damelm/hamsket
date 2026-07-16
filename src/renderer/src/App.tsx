@@ -33,6 +33,8 @@ export function App() {
 	const [live, setLive] = useState<Record<string, boolean>>({})
 	// Resolved color theme ('light' | 'dark') after applying the 'system' setting.
 	const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark')
+	// An update finished downloading and will install on the next restart.
+	const [updateReady, setUpdateReady] = useState(false)
 
 	const reportLive = useCallback((id: string, value: boolean) => {
 		setLive((prev) => (prev[id] === value ? prev : { ...prev, [id]: value }))
@@ -92,6 +94,10 @@ export function App() {
 
 	useEffect(() => {
 		return window.hamsketEvents.onSuspendState(setSuspended)
+	}, [])
+
+	useEffect(() => {
+		return window.hamsketEvents.onUpdaterEvent('updater:downloaded', () => setUpdateReady(true))
 	}, [])
 
 	useEffect(() => {
@@ -246,6 +252,19 @@ export function App() {
 				/>
 			)}
 			</div>
+
+			{updateReady && (
+				<div class="update-toast">
+					<span class="update-toast__dot" />
+					<span class="update-toast__text">Actualización lista — se instalará al reiniciar.</span>
+					<button class="update-toast__btn" onClick={() => window.hamsketApi.quitAndInstallUpdate()}>
+						Reiniciar ahora
+					</button>
+					<button class="update-toast__dismiss" title="Ahora no" onClick={() => setUpdateReady(false)}>
+						✕
+					</button>
+				</div>
+			)}
 		</div>
 	)
 }

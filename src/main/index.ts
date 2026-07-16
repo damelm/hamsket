@@ -10,6 +10,7 @@ import { createTray, destroyTray, setTrayBadge } from './tray'
 import { buildMenu } from './menu'
 import { registerUpdater } from './updater'
 import { hardenWebviews, registerNotificationPermissions, resourcesDir } from './security'
+import { registerProxyAuth } from './proxy'
 
 // Some services' OAuth popups (e.g. Slack via Google) still trip over Electron's
 // strict Cross-Origin-Opener-Policy enforcement in a way upstream hasn't fully
@@ -88,7 +89,7 @@ function createWindow(): void {
 
 	Menu.setApplicationMenu(buildMenu(mainWindow))
 	createTray(mainWindow)
-	registerUpdater(mainWindow)
+	registerUpdater(mainWindow, { getConfig })
 	hardenWebviews(mainWindow)
 
 	contextMenu({ window: mainWindow, showInspectElement: is.dev })
@@ -153,6 +154,7 @@ if (!haveLock) {
 
 	app.whenReady().then(() => {
 		registerNotificationPermissions()
+		registerProxyAuth()
 		registerIpcHandlers({
 			getMainWindow,
 			onConfigChanged: () => mainWindow && applyConfigToWindow(mainWindow)

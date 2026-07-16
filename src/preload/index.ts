@@ -29,6 +29,7 @@ const api: WindowIpcApi = {
 	relaunchApp: () => ipcRenderer.invoke('app:relaunch'),
 	openExternal: (url: string) => ipcRenderer.invoke('app:openExternal', url),
 	checkForUpdates: () => ipcRenderer.invoke('updater:check'),
+	quitAndInstallUpdate: () => ipcRenderer.invoke('updater:quitAndInstall'),
 
 	minimizeWindow: () => ipcRenderer.invoke('window:minimize'),
 	toggleMaximizeWindow: () => ipcRenderer.invoke('window:toggle-maximize'),

@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.3.0] - 2026-07-13
+
+### Added
+
+- **Automatic updates from GitHub Releases.** A new GitHub Actions workflow builds the Windows installer and publishes a Release whenever a version tag (`v*`) is pushed. Installed apps check on startup (and every 6 hours), download in the background, and show a discreet "update ready — restart to apply" notice with a **Reiniciar ahora** button; the update also installs on the next normal quit. Toggle in Preferencias → *Actualizar automáticamente* (on by default). After installing 1.3.0 once, future versions arrive on their own.
+
+### Fixed
+
+- **Background lines dropping their WhatsApp session ("cae al minuto").** Chromium throttles timers and network in unfocused renderers, which can starve WhatsApp Web's multi-device keep-alive websocket and disconnect a line that isn't the active tab. Service webviews now run with `backgroundThrottling: false` so every line stays fully connected in the background. (Note: the geo factor — an Argentine line accessed from another country — is addressed separately by the per-line proxy below.)
+
+### Backend (no UI yet)
+
+- **Per-line outbound proxy — data model and wiring.** Each service can carry an optional proxy (host, port, optional user/password, country/label); the main process applies it to that line's session before it loads and answers authenticated-proxy challenges with the right credentials. No proxy = direct connection. This lets an Argentine line exit through an Argentine IP without a machine-wide VPN. The UI to assign a proxy per line is intentionally not built yet — it will write `service.proxy` and this code does the rest.
+
+### Changed
+
+- CI now runs on the `master` and `rewrite` branches (previously pointed at a non-existent `main`).
+
 ## [1.2.0] - 2026-07-10
 
 ### Added
