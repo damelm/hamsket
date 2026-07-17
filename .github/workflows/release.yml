@@ -21,6 +21,14 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      # Pre-create the release so every artifact (installer, latest.yml AND the
+      # .blockmap) uploads into this one release. Without it, electron-builder's
+      # publisher races to create the release per-file and the .blockmap lands in
+      # a duplicate release that then needs manual cleanup.
+      - name: Ensure the release exists
+        run: gh release create "$env:GITHUB_REF_NAME" --title "OpsDesk $env:GITHUB_REF_NAME" --notes "See CHANGELOG.md." --verify-tag 2>$null; exit 0
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build installer and publish to GitHub Releases
         run: npx electron-builder --win --publish always
         env:

@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.5.1] - 2026-07-13
+
+### Fixed
+
+- **Release pipeline no longer creates a duplicate release.** Each tagged build used to publish the installer + `latest.yml` to one release and the `.blockmap` to a second, duplicate release that needed manual cleanup. The workflow now pre-creates the release so every artifact uploads into it.
+
 ## [1.5.0] - 2026-07-13
 
 ### Added
