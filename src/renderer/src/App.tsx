@@ -8,6 +8,7 @@ import { PreferencesDialog } from './components/PreferencesDialog'
 import { MasterPasswordScreen } from './components/MasterPasswordScreen'
 import { AboutDialog } from './components/AboutDialog'
 import { ServiceContextMenu } from './components/ServiceContextMenu'
+import { ConfirmDialog } from './components/ConfirmDialog'
 import { TitleBar } from './components/TitleBar'
 import type { ServiceInstance } from '@shared/types'
 
@@ -23,6 +24,8 @@ export function App() {
 	const [locked, setLocked] = useState<boolean | null>(null)
 	const [liveSidebarWidth, setLiveSidebarWidth] = useState<number | null>(null)
 	const [contextMenu, setContextMenu] = useState<{ service: ServiceInstance; x: number; y: number } | null>(null)
+	// Service pending a "remove = delete session permanently" confirmation.
+	const [confirmRemove, setConfirmRemove] = useState<ServiceInstance | null>(null)
 	const [reloadNonces, setReloadNonces] = useState<Record<string, number>>({})
 	// Lazy-load: a service's webview is only created once it has been activated.
 	// Services you never open never spend RAM.
@@ -212,7 +215,11 @@ export function App() {
 					editing={editingService}
 					onAdd={addService}
 					onUpdate={updateService}
-					onRemove={removeService}
+					onRemove={() => {
+						const s = editingService
+						setEditingService(null)
+						setConfirmRemove(s)
+					}}
 					onClose={() => setEditingService(null)}
 				/>
 			)}
@@ -245,10 +252,24 @@ export function App() {
 						setContextMenu(null)
 					}}
 					onRemove={() => {
-						removeService(contextMenu.service.id)
+						setConfirmRemove(contextMenu.service)
 						setContextMenu(null)
 					}}
 					onClose={() => setContextMenu(null)}
+				/>
+			)}
+
+			{confirmRemove && (
+				<ConfirmDialog
+					title={`Quitar ${confirmRemove.name}`}
+					message={`Se eliminará la sesión de «${confirmRemove.name}» por completo del disco: cierre de sesión, historial y datos guardados. Si volvés a agregar el servicio, tendrás que iniciar sesión de nuevo (escanear el QR). Esta acción no se puede deshacer.`}
+					confirmLabel="Eliminar sesión"
+					danger
+					onConfirm={() => {
+						removeService(confirmRemove.id)
+						setConfirmRemove(null)
+					}}
+					onCancel={() => setConfirmRemove(null)}
 				/>
 			)}
 			</div>

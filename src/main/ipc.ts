@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto'
 import { getConfig, setConfig, listServices, saveServices } from './config'
 import { hashPassword, verifyPassword } from './master-password'
 import { buildMenu } from './menu'
+import { purgeServiceSession } from './sessions'
 import type { ServiceInstance } from '../shared/types'
 
 interface RegisterOptions {
@@ -38,11 +39,15 @@ export function registerIpcHandlers({ getMainWindow, onConfigChanged }: Register
 		return saveServices(services)
 	})
 
-	ipcMain.handle('services:remove', (_event, id: string) => {
+	ipcMain.handle('services:remove', async (_event, id: string) => {
+		const removed = listServices().find((s) => s.id === id)
 		const services = listServices()
 			.filter((s) => s.id !== id)
 			.map((s, index) => ({ ...s, position: index }))
-		return saveServices(services)
+		saveServices(services)
+		// Wipe the session completely — no orphaned data left on disk.
+		if (removed) await purgeServiceSession(removed)
+		return services
 	})
 
 	ipcMain.handle('services:reorder', (_event, orderedIds: string[]) => {

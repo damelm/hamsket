@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { is } from '@electron-toolkit/utils'
 import AutoLaunch from 'auto-launch'
 import contextMenu from 'electron-context-menu'
-import { getConfig, setConfig } from './config'
+import { getConfig, setConfig, listServices } from './config'
 import { registerIpcHandlers } from './ipc'
 import { registerBadgeChannel } from './badges'
 import { createTray, destroyTray, setTrayBadge } from './tray'
@@ -11,6 +11,7 @@ import { buildMenu } from './menu'
 import { registerUpdater } from './updater'
 import { hardenWebviews, registerNotificationPermissions, resourcesDir } from './security'
 import { registerProxyAuth } from './proxy'
+import { sweepOrphanPartitions } from './sessions'
 
 // Some services' OAuth popups (e.g. Slack via Google) still trip over Electron's
 // strict Cross-Origin-Opener-Policy enforcement in a way upstream hasn't fully
@@ -155,6 +156,8 @@ if (!haveLock) {
 	app.whenReady().then(() => {
 		registerNotificationPermissions()
 		registerProxyAuth()
+		// Keep disk clean: drop any leftover session folder no service points at.
+		sweepOrphanPartitions(listServices())
 		registerIpcHandlers({
 			getMainWindow,
 			onConfigChanged: () => mainWindow && applyConfigToWindow(mainWindow)

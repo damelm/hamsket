@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.3.1] - 2026-07-13
+
+### Changed
+
+- **Removing a service now deletes its session completely.** Previously the session folder was left on disk when a line was removed, so re-adding it created a brand-new (empty) session and left orphaned, crossed data behind. Now removing a service (any type, not just WhatsApp):
+  - Asks for confirmation with a clear warning that the session — login, history, and saved data — will be permanently deleted and can't be undone.
+  - Clears that session's storage/cache immediately (logout).
+  - Deletes the on-disk partition folder (finished by the startup sweep below if Chromium had it locked while running).
+- **Orphan sweep at startup.** Any session folder on disk that no current service points at is removed on launch, so the profile stays clean with no leftover or crossed sessions. Every live session — of any service — has exactly one folder; nothing lingers.
+
 ## [1.3.0] - 2026-07-13
 
 ### Added
