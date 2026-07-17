@@ -21,7 +21,9 @@ const defaults: AppConfig = {
 	hibernateMinutes: 15,
 	suspendOnTray: false,
 	theme: 'system',
-	preloadAll: false,
+	// Call-center default: every line loads at startup so all sessions are live
+	// and notifying from minute zero (hibernation/tray-suspend stay off).
+	preloadAll: true,
 	autoUpdate: true
 }
 

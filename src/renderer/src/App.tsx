@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'preact/hooks'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import { useServices } from './hooks/useServices'
 import { useConfig } from './hooks/useConfig'
 import { TabBar } from './components/TabBar'
@@ -9,6 +9,7 @@ import { MasterPasswordScreen } from './components/MasterPasswordScreen'
 import { AboutDialog } from './components/AboutDialog'
 import { ServiceContextMenu } from './components/ServiceContextMenu'
 import { ConfirmDialog } from './components/ConfirmDialog'
+import { UpdateStatus, type UpdateState } from './components/UpdateStatus'
 import { TitleBar } from './components/TitleBar'
 import type { ServiceInstance } from '@shared/types'
 
@@ -36,8 +37,11 @@ export function App() {
 	const [live, setLive] = useState<Record<string, boolean>>({})
 	// Resolved color theme ('light' | 'dark') after applying the 'system' setting.
 	const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark')
-	// An update finished downloading and will install on the next restart.
-	const [updateReady, setUpdateReady] = useState(false)
+	// Update lifecycle for the on-screen status (checking → downloading → ready → installing).
+	const [update, setUpdate] = useState<UpdateState>({ phase: 'idle' })
+	// True only while a user-initiated "Buscar actualizaciones" is in flight, so
+	// background checks stay quiet but manual ones always give feedback.
+	const manualCheckRef = useRef(false)
 
 	const reportLive = useCallback((id: string, value: boolean) => {
 		setLive((prev) => (prev[id] === value ? prev : { ...prev, [id]: value }))
@@ -100,7 +104,43 @@ export function App() {
 	}, [])
 
 	useEffect(() => {
-		return window.hamsketEvents.onUpdaterEvent('updater:downloaded', () => setUpdateReady(true))
+		let hideTimer: ReturnType<typeof setTimeout> | undefined
+		const autoHide = () => {
+			clearTimeout(hideTimer)
+			hideTimer = setTimeout(() => setUpdate({ phase: 'idle' }), 4000)
+		}
+		const offs = [
+			window.hamsketEvents.onUpdaterEvent('updater:checking', () => {
+				if (manualCheckRef.current) setUpdate({ phase: 'checking' })
+			}),
+			window.hamsketEvents.onUpdaterEvent('updater:available', () => {
+				manualCheckRef.current = false
+				setUpdate({ phase: 'downloading', percent: 0 })
+			}),
+			window.hamsketEvents.onUpdaterEvent('updater:progress', (info: unknown) => {
+				const percent = Math.max(0, Math.min(100, Math.round((info as { percent?: number })?.percent ?? 0)))
+				setUpdate({ phase: 'downloading', percent })
+			}),
+			window.hamsketEvents.onUpdaterEvent('updater:downloaded', () => setUpdate({ phase: 'ready' })),
+			window.hamsketEvents.onUpdaterEvent('updater:not-available', () => {
+				if (manualCheckRef.current) {
+					setUpdate({ phase: 'none' })
+					autoHide()
+				}
+				manualCheckRef.current = false
+			}),
+			window.hamsketEvents.onUpdaterEvent('updater:error', () => {
+				if (manualCheckRef.current) {
+					setUpdate({ phase: 'error' })
+					autoHide()
+				}
+				manualCheckRef.current = false
+			})
+		]
+		return () => {
+			clearTimeout(hideTimer)
+			offs.forEach((off) => off())
+		}
 	}, [])
 
 	useEffect(() => {
@@ -114,7 +154,11 @@ export function App() {
 			}),
 			window.hamsketEvents.onMenuAction('menu:reload-service', () => window.hamsketApi.reloadApp()),
 			window.hamsketEvents.onMenuAction('menu:show-about', () => setAboutOpen(true)),
-			window.hamsketEvents.onMenuAction('menu:check-for-updates', () => window.hamsketApi.checkForUpdates()),
+			window.hamsketEvents.onMenuAction('menu:check-for-updates', () => {
+				manualCheckRef.current = true
+				setUpdate({ phase: 'checking' })
+				window.hamsketApi.checkForUpdates()
+			}),
 			window.hamsketEvents.onMenuAction('menu:tab-next', () => {
 				const list = sorted()
 				if (list.length === 0) return
@@ -271,18 +315,15 @@ export function App() {
 			)}
 			</div>
 
-			{updateReady && (
-				<div class="update-toast">
-					<span class="update-toast__dot" />
-					<span class="update-toast__text">Actualización lista — se instalará al reiniciar.</span>
-					<button class="update-toast__btn" onClick={() => window.hamsketApi.quitAndInstallUpdate()}>
-						Reiniciar ahora
-					</button>
-					<button class="update-toast__dismiss" title="Ahora no" onClick={() => setUpdateReady(false)}>
-						✕
-					</button>
-				</div>
-			)}
+			<UpdateStatus
+				state={update}
+				onInstall={() => {
+					// Show the reassurance overlay, then hand off to the silent installer.
+					setUpdate({ phase: 'installing' })
+					setTimeout(() => window.hamsketApi.quitAndInstallUpdate(), 700)
+				}}
+				onDismiss={() => setUpdate({ phase: 'idle' })}
+			/>
 		</div>
 	)
 }

@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.5.0] - 2026-07-13
+
+### Added
+
+- **Visible update progress.** The update flow now shows what's happening instead of nothing:
+  - "Buscar actualizaciones" shows "Buscando actualizaciones…", then either the download or **"Ya tenés la última versión."** (or an error) — a manual check always gives feedback.
+  - While downloading, a toast shows **"Descargando actualización… N%"** with a progress bar.
+  - When you click "Reiniciar ahora", a full-screen **"Instalando actualización… se reiniciará sola"** overlay reassures you while the silent installer runs, then the app relaunches on its own.
+
+### Changed
+
+- **Call-center default:** *Precargar todos los servicios al iniciar* is now on by default, so every line is live and notifying from startup. (Hibernation and tray-suspend stay off; proxy stays unset.) Adjustable in Preferencias.
+
 ## [1.4.0] - 2026-07-13
 
 ### Changed (hardening — for deployment on shared/operator machines)
