@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, shell, type MenuItemConstructorOptions } from 'electron'
+import { app, BrowserWindow, Menu, type MenuItemConstructorOptions } from 'electron'
 
 function send(win: BrowserWindow, channel: string, ...args: unknown[]): void {
 	win.webContents.send(channel, ...args)
@@ -87,15 +87,6 @@ export function buildMenu(win: BrowserWindow): Menu {
 		{
 			label: 'Ayuda',
 			submenu: [
-				{
-					label: 'Repositorio en GitHub',
-					click: () => shell.openExternal('https://github.com')
-				},
-				{
-					label: 'Reportar un problema',
-					click: () => send(win, 'menu:report-issue')
-				},
-				{ type: 'separator' },
 				{ label: 'Buscar actualizaciones', click: () => send(win, 'menu:check-for-updates') },
 				...(isMac ? [] : [{ label: 'Acerca de', click: () => send(win, 'menu:show-about') }])
 			]

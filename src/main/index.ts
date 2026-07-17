@@ -82,7 +82,10 @@ function createWindow(): void {
 			preload: join(__dirname, '../preload/index.cjs'),
 			contextIsolation: true,
 			nodeIntegration: false,
-			webviewTag: true
+			webviewTag: true,
+			// No DevTools/inspector in production builds — keeps curious operators
+			// out of the app internals. Still available under `npm run dev`.
+			devTools: is.dev
 		}
 	})
 

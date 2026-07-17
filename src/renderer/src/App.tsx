@@ -114,9 +114,6 @@ export function App() {
 			}),
 			window.hamsketEvents.onMenuAction('menu:reload-service', () => window.hamsketApi.reloadApp()),
 			window.hamsketEvents.onMenuAction('menu:show-about', () => setAboutOpen(true)),
-			window.hamsketEvents.onMenuAction('menu:report-issue', () =>
-				window.hamsketApi.openExternal('https://github.com/damelm/hamsket/issues/new')
-			),
 			window.hamsketEvents.onMenuAction('menu:check-for-updates', () => window.hamsketApi.checkForUpdates()),
 			window.hamsketEvents.onMenuAction('menu:tab-next', () => {
 				const list = sorted()

@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0] - 2026-07-13
+
+### Changed (hardening — for deployment on shared/operator machines)
+
+- **Removed the source/repository signposts from the app.** "Acerca de" now shows only the app name, version, and "Hecho por Damián Peña"; the GitHub/source links and the "Repositorio en GitHub" / "Reportar un problema" menu items are gone. The GitHub URLs in the packaged `package.json` (author, repository, homepage, bugs) were stripped too. (The update feed `app-update.yml` still names the release repo — that's required for GitHub-based auto-update; removing it entirely would mean hosting updates on a private domain.)
+- **DevTools/inspector disabled in production.** Neither the app window nor the service pages can open the inspector in a real build (still available under `npm run dev`).
+- **Shipped JavaScript is obfuscated.** Production builds mangle identifiers and encode strings so the app internals aren't casually readable off disk. Applied to main, preload, and renderer; `npm run dev` stays plain. This raises the bar against curious tampering — it is not a hard lock, and anything that must be un-falsifiable (metrics, admin config) still belongs on the server.
+
 ## [1.3.2] - 2026-07-13
 
 ### Fixed
