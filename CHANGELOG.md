@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.2] - 2026-07-13
+
+### Fixed
+
+- **Updates now install silently.** "Reiniciar ahora" (and the on-quit install) used to launch the assisted setup wizard, forcing the operator to click through it. The auto-updater now runs the installer with `isSilent` so the update applies in the background and the app relaunches on its own — no dialog. (Takes effect from this version onward: a machine already on 1.3.2 updates silently; the manual step is only ever the very first install.)
+
 ## [1.3.1] - 2026-07-13
 
 ### Changed

@@ -37,7 +37,10 @@ export function registerUpdater(win: BrowserWindow, { getConfig }: Options): voi
 	// Manual controls (menu "Buscar actualizaciones", renderer buttons).
 	ipcMain.handle('updater:check', () => autoUpdater.checkForUpdates())
 	ipcMain.handle('updater:download', () => autoUpdater.downloadUpdate())
-	ipcMain.handle('updater:quitAndInstall', () => autoUpdater.quitAndInstall())
+	// isSilent=true installs without showing the (assisted) NSIS wizard, so an
+	// operator never has to click through a setup dialog; isForceRunAfter=true
+	// relaunches the app afterward.
+	ipcMain.handle('updater:quitAndInstall', () => autoUpdater.quitAndInstall(true, true))
 
 	// electron-updater is a no-op under `npm run dev` (the app isn't packaged),
 	// so only run the automatic polling loop in a real build.
