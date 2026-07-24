@@ -15,18 +15,37 @@ export const SERVICES_CATALOG: ServiceCatalogEntry[] = [
 		icon: 'whatsapp.png',
 		url: 'https://web.whatsapp.com/',
 		requiresCustomUrl: false,
-		unreadScriptUnverified: true,
 		unreadScript: `
+			let lastMsgs = -1, lastChats = -1;
 			const checkUnread = () => {
-				const items = document.querySelectorAll('[aria-label="Lista de chats"] [aria-label*="no leído"], #pane-side [aria-label*="unread"]');
-				let count = 0;
-				for (const item of items) {
-					const badge = item.querySelector('span[aria-label*="unread"], span[aria-label*="no leíd"]');
-					count += badge ? (hamsket.parseIntOrZero(badge.textContent) || 1) : 0;
+				// Each unread chat row in the list pane carries an aria-label like
+				// "N mensajes no leídos" (or "unread" in English). Count both:
+				//   chats    = number of conversations with unread messages (the rows)
+				//   messages = total unread messages across those conversations
+				// Verified against a live WhatsApp Web session (Spanish + English).
+				const rows = document.querySelectorAll('#pane-side [aria-label*="no leíd"], #pane-side [aria-label*="unread"]');
+				let chats = 0, messages = 0;
+				for (const row of rows) {
+					chats++;
+					// The unread count sits in a descendant (or the element itself)
+					// whose whole text is just digits (e.g. "5"). A chat marked unread
+					// by hand has no number → counts as a chat with 0 messages.
+					const candidates = [row, ...row.querySelectorAll('span')];
+					for (const c of candidates) {
+						const t = (c.textContent || '').trim();
+						if (/^[0-9]+$/.test(t)) { messages += parseInt(t, 10); break; }
+					}
 				}
-				hamsket.updateBadge(count);
+				// Only cross the IPC boundary (and trigger a UI re-render) when the
+				// count actually changes — the scan itself runs every 2s but stays silent
+				// otherwise, so idle lines cost nothing downstream.
+				if (messages === lastMsgs && chats === lastChats) return;
+				lastMsgs = messages; lastChats = chats;
+				// direct = messages (header total), indirect = chats (sidebar badge)
+				hamsket.updateBadge(messages, chats);
 			};
 			setInterval(checkUnread, 2000);
+			checkUnread();
 		`
 	},
 	{
@@ -73,6 +92,7 @@ export const SERVICES_CATALOG: ServiceCatalogEntry[] = [
 		icon: 'nextcloud-talk.png',
 		url: null,
 		requiresCustomUrl: true,
+		selfHostable: true,
 		note: 'Ingresá la URL de tu instancia Nextcloud, ej. https://tudominio.com/apps/spreed/. Sin precedente en Hamsket original — el contador puede no funcionar hasta verificarlo contra una instancia real.',
 		unreadScriptUnverified: true,
 		unreadScript: `
@@ -91,6 +111,7 @@ export const SERVICES_CATALOG: ServiceCatalogEntry[] = [
 		icon: 'element.png',
 		url: 'https://app.element.io/',
 		requiresCustomUrl: false,
+		selfHostable: true,
 		unreadScriptUnverified: true,
 		unreadScript: `
 			const checkUnread = () => {
@@ -110,6 +131,7 @@ export const SERVICES_CATALOG: ServiceCatalogEntry[] = [
 		icon: 'custom.png',
 		url: null,
 		requiresCustomUrl: true,
+		selfHostable: true,
 		note: 'Cualquier sitio web. Sin detección de no-leídos automática salvo por el título de la pestaña.'
 	}
 ]

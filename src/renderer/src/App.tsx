@@ -17,7 +17,9 @@ export function App() {
 	const { services, loaded, addService, updateService, removeService } = useServices()
 	const { config, setConfig } = useConfig()
 	const [activeId, setActiveId] = useState<string | null>(null)
-	const [badges, setBadges] = useState<Record<string, number>>({})
+	// Per-service unread counts: `messages` (feeds the header total) and `chats`
+	// (feeds each sidebar tile). See ServiceView / badges.ts for how they're sourced.
+	const [counts, setCounts] = useState<Record<string, { messages: number; chats: number }>>({})
 	const [addOpen, setAddOpen] = useState(false)
 	const [editingService, setEditingService] = useState<ServiceInstance | null>(null)
 	const [preferencesOpen, setPreferencesOpen] = useState(false)
@@ -82,6 +84,16 @@ export function App() {
 	}, [config?.preloadAll, services])
 
 	const liveCount = useMemo(() => services.filter((s) => live[s.id]).length, [services, live])
+	// Sidebar tile badge = unread chats per service.
+	const badges = useMemo(
+		() => Object.fromEntries(Object.entries(counts).map(([id, c]) => [id, c.chats])),
+		[counts]
+	)
+	// Header total = unread messages across every service.
+	const unreadMessages = useMemo(
+		() => Object.values(counts).reduce((sum, c) => sum + c.messages, 0),
+		[counts]
+	)
 
 	useEffect(() => {
 		if (activeId && !activated.has(activeId)) {
@@ -94,8 +106,12 @@ export function App() {
 	}, [])
 
 	useEffect(() => {
-		return window.hamsketEvents.onServiceBadge((serviceId, direct) => {
-			setBadges((prev) => ({ ...prev, [serviceId]: direct }))
+		return window.hamsketEvents.onServiceBadge((serviceId, direct, indirect) => {
+			setCounts((prev) => {
+				const cur = prev[serviceId]
+				if (cur && cur.messages === direct && cur.chats === indirect) return prev
+				return { ...prev, [serviceId]: { messages: direct, chats: indirect } }
+			})
 		})
 	}, [])
 
@@ -187,7 +203,7 @@ export function App() {
 	if (locked) {
 		return (
 			<div class="app-root">
-				<TitleBar theme={resolvedTheme} onToggleTheme={toggleTheme} total={0} online={0} />
+				<TitleBar theme={resolvedTheme} onToggleTheme={toggleTheme} total={0} online={0} unread={0} />
 				<MasterPasswordScreen onUnlock={() => setLocked(false)} />
 			</div>
 		)
@@ -200,6 +216,7 @@ export function App() {
 				onToggleTheme={toggleTheme}
 				total={services.length}
 				online={liveCount}
+				unread={unreadMessages}
 			/>
 			<div class="app-shell">
 			<TabBar
@@ -255,7 +272,16 @@ export function App() {
 				<AddServiceDialog
 					editing={editingService}
 					onAdd={addService}
-					onUpdate={updateService}
+					onUpdate={(id, patch) => {
+						updateService(id, patch)
+						// A proxy change only takes effect on a fresh connection — reload the line.
+						if (
+							'proxy' in patch &&
+							JSON.stringify(patch.proxy ?? null) !== JSON.stringify(editingService.proxy ?? null)
+						) {
+							reloadService(id)
+						}
+					}}
 					onRemove={() => {
 						const s = editingService
 						setEditingService(null)

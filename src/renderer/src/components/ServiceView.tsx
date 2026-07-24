@@ -27,7 +27,10 @@ const DESKTOP_CHROME_UA = toCleanChromeUA(navigator.userAgent)
 // prop mapping for most of it.
 export function ServiceView({ instance, active, reloadNonce, suspended, hibernateMinutes, onLive }: Props) {
 	const containerRef = useRef<HTMLDivElement>(null)
-	const lastScriptCount = useRef(0)
+	// Detection reports two numbers: total unread messages (direct) and how many
+	// chats have unread (indirect). The title fallback only yields a single count.
+	const lastScriptMsgs = useRef(0)
+	const lastScriptChats = useRef(0)
 	const lastTitleCount = useRef(0)
 	const readyRef = useRef(false)
 	const firstNonce = useRef(reloadNonce)
@@ -73,8 +76,13 @@ export function ServiceView({ instance, active, reloadNonce, suspended, hibernat
 		webview.style.height = '100%'
 
 		const reportBadge = () => {
-			const direct = Math.max(lastScriptCount.current, lastTitleCount.current)
-			window.hamsketApi.setBadge(instance.id, direct, 0)
+			// messages drives the header/tray total; chats drives the sidebar tile.
+			// The title count is a fallback (chats, for most apps) when the DOM
+			// script hasn't reported yet or isn't available for this service.
+			const messages = Math.max(lastScriptMsgs.current, lastTitleCount.current)
+			const chats =
+				lastScriptChats.current || lastTitleCount.current || (lastScriptMsgs.current > 0 ? lastScriptMsgs.current : 0)
+			window.hamsketApi.setBadge(instance.id, messages, chats)
 		}
 
 		webview.addEventListener('dom-ready', () => {
@@ -88,8 +96,9 @@ export function ServiceView({ instance, active, reloadNonce, suspended, hibernat
 
 		webview.addEventListener('ipc-message', (event) => {
 			if (event.channel === 'hamsket:badge') {
-				const [direct] = event.args as [number, number]
-				lastScriptCount.current = direct
+				const [direct, indirect] = event.args as [number, number]
+				lastScriptMsgs.current = direct
+				lastScriptChats.current = indirect
 				reportBadge()
 			} else if (event.channel === 'hamsket:title-badge') {
 				const [count] = event.args as [number]
@@ -135,8 +144,20 @@ export function ServiceView({ instance, active, reloadNonce, suspended, hibernat
 	// The webview lives in its own dedicated div (containerRef) that Preact never
 	// renders children into, so imperative appendChild and Preact's reconciliation
 	// of the placeholder overlay don't fight over the same DOM node.
+	//
+	// Inactive lines are hidden with `visibility: hidden`, NOT `display: none`.
+	// `display: none` removes the layout box, so Chromium tears down the <webview>
+	// guest's compositor surface; switching back then shows a blank white pane until
+	// it repaints ("a veces se queda en blanco al cambiar de WhatsApp"). Keeping the
+	// box laid out (visibility) preserves the surface — the switch is instant and
+	// never blanks — while `visibility: hidden` still skips painting, so idle lines
+	// cost no GPU. Views are already stacked (position:absolute; inset:0).
 	return (
-		<div class="service-view" style={{ display: active ? 'block' : 'none' }}>
+		<div
+			class="service-view"
+			style={{ visibility: active ? 'visible' : 'hidden' }}
+			aria-hidden={active ? undefined : 'true'}
+		>
 			<div ref={containerRef} class="service-view__host" />
 			{active && !loaded && (
 				<div class="service-view__placeholder">

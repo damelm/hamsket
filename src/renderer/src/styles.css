@@ -246,6 +246,19 @@ body,
 	font-variant-numeric: tabular-nums;
 	opacity: 0.75;
 }
+/* Total unread messages — a solid pill so it reads as the live counter, not a
+   passive status line. Sits on the brand gradient, so it uses its own surface. */
+.noc-chip--unread {
+	padding: 2px 9px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.16);
+	opacity: 1;
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+.noc-chip__icon {
+	flex: none;
+	opacity: 0.95;
+}
 .noc-dot {
 	width: 7px;
 	height: 7px;
@@ -737,6 +750,34 @@ body,
 	gap: var(--sp-1);
 	font-size: var(--fs-base);
 	color: var(--muted);
+}
+/* Per-line proxy block: a bordered section with two-up rows of fields. */
+.modal__section {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-2);
+	padding: var(--sp-3);
+	border: 1px solid var(--border);
+	border-radius: var(--r-md);
+	background: var(--surface-2);
+}
+.modal__section-title {
+	font-size: var(--fs-sm);
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	color: var(--text);
+}
+.modal__row {
+	display: flex;
+	gap: var(--sp-2);
+}
+.modal__field--grow {
+	flex: 1;
+	min-width: 0;
+}
+.modal__field--port {
+	width: 84px;
+	flex: none;
 }
 .modal__checkbox {
 	display: flex;

@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.1] - 2026-07-24
+
+### Added
+
+- **Contador de no-leídos por línea.** El header muestra el total de **mensajes** sin leer sumando todas las líneas, y cada línea en la barra lateral muestra su badge con la cantidad de **chats** sin leer.
+- **Proxy de salida por línea.** Desde *editar una línea* se le puede asignar un proxy (host, puerto, usuario, contraseña, etiqueta) para que salga por un IP específico — pensado para darle a cada línea argentina un IP residencial/móvil AR estático y evitar que WhatsApp cierre la sesión. Vacío = conexión directa. Al guardar, la línea se recarga para reconectar por el nuevo IP. (El backend ya existía desde 1.3.0; esta versión agrega la interfaz para cargarlo.)
+- **Versión visible en el header.** Al pasar el mouse por el logo/nombre "OpsDesk" aparece la versión instalada.
+
+### Fixed
+
+- **Pantalla en blanco al cambiar de línea.** Al alternar entre líneas, a veces la vista quedaba en blanco hasta que algo la obligaba a repintar. Las líneas inactivas ahora se ocultan conservando su superficie de render (visibility) en vez de descartarla (display:none), así el cambio es instantáneo y sin pantallazo en blanco.
+
 ## [1.5.1] - 2026-07-13
 
 ### Fixed

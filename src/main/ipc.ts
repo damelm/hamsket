@@ -1,9 +1,10 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, session, shell } from 'electron'
 import { randomUUID } from 'node:crypto'
 import { getConfig, setConfig, listServices, saveServices } from './config'
 import { hashPassword, verifyPassword } from './master-password'
 import { buildMenu } from './menu'
 import { purgeServiceSession } from './sessions'
+import { applyServiceProxyToSession } from './proxy'
 import type { ServiceInstance } from '../shared/types'
 
 interface RegisterOptions {
@@ -36,7 +37,15 @@ export function registerIpcHandlers({ getMainWindow, onConfigChanged }: Register
 
 	ipcMain.handle('services:update', (_event, id: string, patch: Partial<ServiceInstance>) => {
 		const services = listServices().map((s) => (s.id === id ? { ...s, ...patch } : s))
-		return saveServices(services)
+		const saved = saveServices(services)
+		// Re-apply the proxy to this line's live session so a proxy edit takes hold
+		// on the next request/reload (the renderer reloads the webview after a change).
+		const updated = saved.find((s) => s.id === id)
+		if (updated) {
+			const ses = session.fromPartition(`persist:${updated.catalogId}:${updated.id}`)
+			applyServiceProxyToSession(ses, updated)
+		}
+		return saved
 	})
 
 	ipcMain.handle('services:remove', async (_event, id: string) => {

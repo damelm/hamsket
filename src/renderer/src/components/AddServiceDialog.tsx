@@ -24,8 +24,27 @@ export function AddServiceDialog({ editing, onAdd, onUpdate, onRemove, onClose }
 	const [muted, setMuted] = useState(editing?.muted ?? false)
 	const [trustSelfSigned, setTrustSelfSigned] = useState(editing?.trustSelfSigned ?? false)
 	const [hibernate, setHibernate] = useState(editing?.hibernate ?? false)
+	// Per-line outbound proxy (see src/main/proxy.ts). Empty host = direct connection.
+	const [proxyHost, setProxyHost] = useState(editing?.proxy?.host ?? '')
+	const [proxyPort, setProxyPort] = useState(editing?.proxy?.port ? String(editing.proxy.port) : '')
+	const [proxyUser, setProxyUser] = useState(editing?.proxy?.username ?? '')
+	const [proxyPass, setProxyPass] = useState(editing?.proxy?.password ?? '')
+	const [proxyLabel, setProxyLabel] = useState(editing?.proxy?.label ?? '')
 
 	const catalog = pickedCatalogId ? getServiceByCatalogId(pickedCatalogId) : undefined
+
+	function buildProxy(): ServiceInstance['proxy'] {
+		const host = proxyHost.trim()
+		const port = Number.parseInt(proxyPort.trim(), 10)
+		if (!host || !Number.isFinite(port)) return null
+		return {
+			host,
+			port,
+			username: proxyUser.trim() || undefined,
+			password: proxyPass || undefined,
+			label: proxyLabel.trim() || undefined
+		}
+	}
 
 	function pick(catalogId: string) {
 		const entry = getServiceByCatalogId(catalogId)
@@ -38,7 +57,7 @@ export function AddServiceDialog({ editing, onAdd, onUpdate, onRemove, onClose }
 	function submit() {
 		if (!catalog || !url) return
 		if (editing) {
-			onUpdate(editing.id, { name, url, notifications, muted, trustSelfSigned, hibernate })
+			onUpdate(editing.id, { name, url, notifications, muted, trustSelfSigned, hibernate, proxy: buildProxy() })
 		} else {
 			onAdd({
 				catalogId: catalog.id,
@@ -48,7 +67,8 @@ export function AddServiceDialog({ editing, onAdd, onUpdate, onRemove, onClose }
 				muted,
 				trustSelfSigned,
 				...DEFAULTS,
-				hibernate
+				hibernate,
+				proxy: buildProxy()
 			})
 		}
 		onClose()
@@ -104,14 +124,16 @@ export function AddServiceDialog({ editing, onAdd, onUpdate, onRemove, onClose }
 							Silenciar audio
 						</label>
 
-						<label class="modal__checkbox">
-							<input
-								type="checkbox"
-								checked={trustSelfSigned}
-								onChange={(e) => setTrustSelfSigned((e.target as HTMLInputElement).checked)}
-							/>
-							Confiar en certificado autofirmado
-						</label>
+						{(catalog.selfHostable || trustSelfSigned) && (
+							<label class="modal__checkbox">
+								<input
+									type="checkbox"
+									checked={trustSelfSigned}
+									onChange={(e) => setTrustSelfSigned((e.target as HTMLInputElement).checked)}
+								/>
+								Confiar en certificado autofirmado
+							</label>
+						)}
 
 						<label class="modal__checkbox">
 							<input
@@ -126,6 +148,67 @@ export function AddServiceDialog({ editing, onAdd, onUpdate, onRemove, onClose }
 								Mientras esté dormido no recibe mensajes ni notificaciones hasta que lo vuelvas a abrir.
 							</p>
 						)}
+
+						<div class="modal__section">
+							<span class="modal__section-title">Proxy de salida (opcional)</span>
+							<p class="modal__note">
+								IP por el que sale esta línea. Para líneas argentinas conviene un proxy residencial o móvil de
+								Argentina con IP fijo — evita que WhatsApp cierre la sesión. Dejalo vacío para conexión directa.
+							</p>
+							<div class="modal__row">
+								<label class="modal__field modal__field--grow">
+									Host / IP
+									<input
+										type="text"
+										placeholder="ej. 190.120.10.5"
+										value={proxyHost}
+										onInput={(e) => setProxyHost((e.target as HTMLInputElement).value)}
+									/>
+								</label>
+								<label class="modal__field modal__field--port">
+									Puerto
+									<input
+										type="text"
+										inputMode="numeric"
+										placeholder="8080"
+										value={proxyPort}
+										onInput={(e) => setProxyPort((e.target as HTMLInputElement).value)}
+									/>
+								</label>
+							</div>
+							<div class="modal__row">
+								<label class="modal__field modal__field--grow">
+									Usuario
+									<input
+										type="text"
+										placeholder="(si el proxy lo pide)"
+										value={proxyUser}
+										onInput={(e) => setProxyUser((e.target as HTMLInputElement).value)}
+									/>
+								</label>
+								<label class="modal__field modal__field--grow">
+									Contraseña
+									<input
+										type="password"
+										placeholder="(si el proxy lo pide)"
+										value={proxyPass}
+										onInput={(e) => setProxyPass((e.target as HTMLInputElement).value)}
+									/>
+								</label>
+							</div>
+							<label class="modal__field">
+								Etiqueta
+								<input
+									type="text"
+									placeholder="ej. AR móvil 1"
+									value={proxyLabel}
+									onInput={(e) => setProxyLabel((e.target as HTMLInputElement).value)}
+								/>
+							</label>
+							{editing && (
+								<p class="modal__note">Al guardar, la línea se recarga para reconectar por el nuevo IP.</p>
+							)}
+						</div>
 
 						<div class="modal__actions">
 							<button onClick={submit} disabled={!url || !name}>

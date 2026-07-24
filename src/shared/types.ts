@@ -7,6 +7,11 @@ export interface ServiceCatalogEntry {
 	/** Fixed URL, or null when the user must supply their own (self-hosted / custom). */
 	url: string | null
 	requiresCustomUrl: boolean
+	/** Can point at a server the user runs (self-hosted), which may use a
+	 *  self-signed certificate — only then is the "trust self-signed" option
+	 *  relevant. Public services (WhatsApp, Telegram, Slack) always have a valid
+	 *  certificate, so the option is hidden for them. */
+	selfHostable?: boolean
 	/** Injected into the webview on dom-ready to detect unread messages and call hamsket.updateBadge(). */
 	unreadScript?: string
 	/** True when the unread selector hasn't been confirmed against a live instance yet. */

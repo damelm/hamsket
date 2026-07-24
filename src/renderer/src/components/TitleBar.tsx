@@ -5,18 +5,25 @@ interface Props {
 	onToggleTheme: () => void
 	total: number
 	online: number
+	/** Total unread messages across every service (not chats). */
+	unread: number
 }
 
 // Operations-style header for the frameless window: brand identity on the left,
 // a live NOC status strip (services online / paused + clock), and the window
 // controls on the right. The whole strip is draggable except the controls.
-export function TitleBar({ theme, onToggleTheme, total, online }: Props) {
+export function TitleBar({ theme, onToggleTheme, total, online, unread }: Props) {
 	const [maximized, setMaximized] = useState(false)
 	const [clock, setClock] = useState('')
+	const [version, setVersion] = useState('')
 
 	useEffect(() => {
 		window.hamsketApi.isWindowMaximized().then(setMaximized)
 		return window.hamsketEvents.onWindowMaximized(setMaximized)
+	}, [])
+
+	useEffect(() => {
+		window.hamsketApi.getVersion().then(setVersion)
 	}, [])
 
 	useEffect(() => {
@@ -44,7 +51,7 @@ export function TitleBar({ theme, onToggleTheme, total, online }: Props) {
 				</svg>
 			</button>
 
-			<div class="titlebar__brand">
+			<div class="titlebar__brand" title={version ? `OpsDesk ${version}` : 'OpsDesk'}>
 				<img class="titlebar__logo" src="./opsdesk.png" alt="" />
 				<div class="titlebar__brandtext">
 					<span class="titlebar__title">OpsDesk</span>
@@ -62,6 +69,20 @@ export function TitleBar({ theme, onToggleTheme, total, online }: Props) {
 						<span class="noc-chip" title="Servicios en pausa">
 							<span class="noc-dot noc-dot--sleep" />
 							<b>{paused}</b> en pausa
+						</span>
+					)}
+					{unread > 0 && (
+						<span class="noc-chip noc-chip--unread" title="Mensajes sin leer">
+							<svg class="noc-chip__icon" width="13" height="13" viewBox="0 0 16 16" aria-hidden="true">
+								<path
+									d="M2 4.5A1.5 1.5 0 0 1 3.5 3h9A1.5 1.5 0 0 1 14 4.5v7A1.5 1.5 0 0 1 12.5 13h-9A1.5 1.5 0 0 1 2 11.5z"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.2"
+								/>
+								<path d="M2.5 4.5 8 8.5l5.5-4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+							</svg>
+							<b>{unread}</b> sin leer
 						</span>
 					)}
 					<span class="noc-chip noc-chip--clock">{clock}</span>

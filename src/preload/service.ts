@@ -87,18 +87,19 @@ if (NativeAudioContext) {
 	}
 }
 
-// Fallback unread detection for services whose catalog script goes stale: most
-// chat apps put an unread count in the tab title, e.g. "(3) Slack | Acme".
-let lastTitleCount = 0
-new MutationObserver(() => {
-	const match = /^\(([0-9]+)\)/.exec(document.title)
+// Unread detection via the tab title: most chat apps put an unread count in it,
+// e.g. "(3) WhatsApp". This is language-independent and doesn't depend on the
+// site's (frequently-renamed) DOM classes. Poll rather than observe: the title
+// is often already set before any mutation fires, and some apps swap the whole
+// <title> node — a MutationObserver on it silently misses both cases.
+let lastTitleCount = -1
+const readTitleBadge = (): void => {
+	const match = /\(([0-9]+)\)/.exec(document.title)
 	const count = match ? Number.parseInt(match[1], 10) : 0
 	if (count !== lastTitleCount) {
 		lastTitleCount = count
 		ipcRenderer.sendToHost('hamsket:title-badge', count)
 	}
-}).observe(document.querySelector('title') ?? document.documentElement, {
-	subtree: true,
-	characterData: true,
-	childList: true
-})
+}
+setInterval(readTitleBadge, 2000)
+readTitleBadge()
